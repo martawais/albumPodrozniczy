@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
 
     Intent intent;
     final private int REQUEST_FINE_LOCATION = 0;
-	boolean booleanek;
+	boolean booleaneki;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
