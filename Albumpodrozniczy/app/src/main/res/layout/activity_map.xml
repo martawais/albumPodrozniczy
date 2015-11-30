@@ -23,15 +23,19 @@
     <include layout="@layout/content_map" />
 
 
+
+
     <android.support.design.widget.FloatingActionButton android:id="@+id/buttonStart"
         android:scaleX="1.2"
         android:scaleY="1.2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+
         android:visibility="visible"
         android:clickable="true"
         android:src="@drawable/map_marker" />
+
 
 
 

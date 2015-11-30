@@ -1,5 +1,7 @@
 package mw.albumpodrozniczy;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.IntentSender;
 import android.graphics.Color;
 import android.location.Address;
@@ -18,6 +20,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -65,7 +68,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
     private MarkerOptions markerOptions;
     private MarkerOptions markerOptionsFolder;
     private Marker marker;
-    private int counterRoutes;
+    private int counterRoutes, counterComments;
     private int quantityRoute = 0;
     private LatLng previousLatLng;
     private Polyline line;
@@ -73,7 +76,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
     private JSONArray updateObject;
     private List<Address> listAddress;
     private Geocoder geocoder;
-    private FloatingActionButton buttonStart, buttonAddFolder, buttonAddComment;
+    private FloatingActionButton buttonStart, buttonAddFolder, buttonAddComment, buttonJSON;
     private Switch raportSwitch;
     private boolean requestUpdate;
     private double currentLatitude;
@@ -82,6 +85,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
     private BitmapDescriptor iconMarker;
     private Toolbar toolbar;
     private EditText editComment;
+    private RelativeLayout layoutBelowMap;
 
 
 
@@ -103,12 +107,15 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
         buttonStart = (FloatingActionButton) findViewById(R.id.buttonStart);
         buttonAddFolder = (FloatingActionButton) findViewById(R.id.buttonAddFolder);
         buttonAddComment = (FloatingActionButton) findViewById(R.id.buttonAddComment);
+        buttonJSON = (FloatingActionButton) findViewById(R.id.buttonJSON);
         geocoder= new Geocoder(getApplicationContext(), Locale.getDefault());
         raportSwitch = (Switch) findViewById(R.id.raportSwitch);
         editComment = (EditText) findViewById(R.id.editComment);
+        layoutBelowMap = (RelativeLayout) findViewById(R.id.layoutBelowMap);
         raportSwitch.setEnabled(false);
         buttonAddFolder.setEnabled(false);
         buttonAddComment.setEnabled(false);
+        buttonJSON.setEnabled(false);
 
 
         iconFolder = BitmapDescriptorFactory.fromResource(R.drawable.folder_image);
@@ -145,6 +152,8 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
             public void onClick(View view) {
                 Snackbar.make(view, "Dodanie nowego katalogu", Snackbar.LENGTH_LONG).setAction("Action", null).show();
                 addFolder();
+
+
             }
         });
 
@@ -157,19 +166,37 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
             }
         });
 
+        buttonJSON.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new AlertDialog.Builder(Map.this)
+                        .setTitle("JSON Object")
+                        .setMessage(jsonObject.toString())
+                        .setCancelable(false)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // whatever...
+                            }
+                        }).create().show();
+
+            }
+        });
+
         editComment.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    try {
-                        if(!jsonObject.has("comment")) {
-                            jsonObject.put("comment", editComment.getText());
-                        }
-                        else {
 
-                            String stringComment = jsonObject.getString("comment");
-                            stringComment = stringComment +"-"+  editComment.getText();
-                            jsonObject.put("comment", stringComment);
+                    try {
+                        if (!jsonObject.has("comments")) {
+                            updateObject = new JSONArray();
+                            updateObject.put(editComment.getText());
+                            jsonObject.put("comments", updateObject);
+                        } else {
+                            updateObject = jsonObject.getJSONArray("comments");
+                            updateObject.put(editComment.getText());
+                            jsonObject.put("comments", updateObject);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -184,7 +211,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
         raportSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked) {
+                if (isChecked) {
                     Snackbar.make(buttonView, "Lokalizowanie obecnego położenia...", Snackbar.LENGTH_LONG).setAction("Action", null).show();
                     requestUpdate = true;
                 } else {
@@ -194,6 +221,8 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
                 }
             }
         });
+
+
     }
 
 
@@ -266,11 +295,13 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
                 markerOptions = new MarkerOptions().position(latLng); //.icon(iconMarker)
                 //markerOptions = markerOptions.position(latLng).title("I am here!");
                 marker = map.addMarker(markerOptions);
+                layoutBelowMap.setVisibility(View.INVISIBLE);
                 previousLatLng = latLng;
                 recognizeLocation(latLng);
                 raportSwitch.setEnabled(true);
                 buttonAddFolder.setEnabled(true);
                 buttonAddComment.setEnabled(true);
+                buttonJSON.setEnabled(true);
             }
             else if (quantityRoute == 2) {
                 currentZoom = map.getCameraPosition().zoom;
@@ -320,8 +351,24 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
     }
 
     private void addFolder() {
+
         markerOptionsFolder = new MarkerOptions().position(latLng).icon(iconFolder);
         map.addMarker(markerOptionsFolder);
+
+        try {
+            if (!jsonObject.has("folders")) {
+                updateObject = new JSONArray();
+                updateObject.put(Double.toString(latLng.latitude) + "," + Double.toString(latLng.longitude));
+                jsonObject.put("folders", updateObject);
+            } else {
+                updateObject = jsonObject.getJSONArray("folders");
+                updateObject.put(Double.toString(latLng.latitude) + "," + Double.toString(latLng.longitude));
+                jsonObject.put("folders", updateObject);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
 

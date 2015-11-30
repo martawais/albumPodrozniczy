@@ -17,5 +17,29 @@
         class="com.google.android.gms.maps.MapFragment"/>
 
 
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/layoutBelowMap"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" android:paddingLeft="0dp"
+        android:paddingRight="0dp"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp"
+        android:foreground="#ffffff"
+        android:alpha="0.5"
+        android:visibility="visible">
+    </RelativeLayout>
+
+    <android.support.design.widget.FloatingActionButton android:id="@+id/buttonJSON"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="10dp"
+        android:clickable="true"
+        android:src="@drawable/database"
+        android:layout_above="@id/layoutBelowMap"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true" />
+
+
 
 </RelativeLayout>
