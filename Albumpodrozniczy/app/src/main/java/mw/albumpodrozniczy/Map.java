@@ -1,7 +1,5 @@
 package mw.albumpodrozniczy;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.IntentSender;
 import android.graphics.Color;
 import android.location.Address;
@@ -15,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -65,33 +64,35 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
     private LatLng latLng;
     private float currentZoom = 5;
     boolean mResolvingError;
-    private MarkerOptions markerOptions;
-    private MarkerOptions markerOptionsFolder;
+    private MarkerOptions markerOptions, markerOptionsFolder;
     private Marker marker;
-    private int counterRoutes, counterComments;
-    private int quantityRoute = 0;
+    private int counterRoutes, quantityRoute = 0;
     private LatLng previousLatLng;
     private Polyline line;
     private JSONObject jsonObject;
     private JSONArray updateObject;
     private List<Address> listAddress;
     private Geocoder geocoder;
-    private FloatingActionButton buttonStart, buttonAddFolder, buttonAddComment, buttonJSON;
+    private FloatingActionButton buttonStart, buttonCamera;
     private Switch raportSwitch;
     private boolean requestUpdate;
-    private double currentLatitude;
-    private double currentLongitude;
+    private double currentLatitude, currentLongitude;
     private BitmapDescriptor iconFolder;
-    private BitmapDescriptor iconMarker;
     private Toolbar toolbar;
     private EditText editComment;
     private RelativeLayout layoutBelowMap;
 
+    private DatabaseAdapter databaseAdapter;
 
+
+    //TABELE
+    private long numerObecnejPodrozy;
+    private long numerObecnejTrasy;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
@@ -99,45 +100,27 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
         toolbar.setTitle(" NOWA PODRÓŻ");
         setSupportActionBar(toolbar);
 
+        databaseAdapter = new DatabaseAdapter(getApplicationContext());
+        databaseAdapter.open();
+
         jsonObject = new JSONObject();
         latLng = new LatLng(51.0, 20.0);
         requestUpdate = false;
 
-        map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-        buttonStart = (FloatingActionButton) findViewById(R.id.buttonStart);
-        buttonAddFolder = (FloatingActionButton) findViewById(R.id.buttonAddFolder);
-        buttonAddComment = (FloatingActionButton) findViewById(R.id.buttonAddComment);
-        buttonJSON = (FloatingActionButton) findViewById(R.id.buttonJSON);
-        geocoder= new Geocoder(getApplicationContext(), Locale.getDefault());
-        raportSwitch = (Switch) findViewById(R.id.raportSwitch);
-        editComment = (EditText) findViewById(R.id.editComment);
-        layoutBelowMap = (RelativeLayout) findViewById(R.id.layoutBelowMap);
-        raportSwitch.setEnabled(false);
-        buttonAddFolder.setEnabled(false);
-        buttonAddComment.setEnabled(false);
-        buttonJSON.setEnabled(false);
-
-
-        iconFolder = BitmapDescriptorFactory.fromResource(R.drawable.folder_image);
-       // iconMarker = BitmapDescriptorFactory.fromResource(R.drawable.map_marker_black);
-
-
+        wlaczenieWszystkichButton();
 
         //ustawienie parametrów zapytania o lokalizacje
-        mLocationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)// pytamy o lokalizację, tak dokładną jak jest możliwa
-                .setInterval(10 * 1000)       // 5 seconds, in milliseconds- odstęp czasu po jakim nastąpi update lokalizacji
-                .setFastestInterval(5 * 1000); // 1 second, in milliseconds- najszybszy odstep czasu w jakim uzyskamy update lokalizacji
+        // pytamy o lokalizację, tak dokładną jak jest możliwa
+        // 5 seconds, in milliseconds- odstęp czasu po jakim nastąpi update lokalizacji
+        // 1 second, in milliseconds- najszybszy odstep czasu w jakim uzyskamy update lokalizacji
+        mLocationRequest = LocationRequest.create().setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY).setInterval(10 * 1000).setFastestInterval(5 * 1000);
 
         //stworzenie inctancji Google API Client (dostarcza interfejsu do połączenia i możliwość wywołania serwisu Googla) przy pomocy buildera, zeby polączyć sie do API (asynchronicznie i przechwytując błędy) i żeby zarządzać połączeniem sieciowym miedzy urządzeniem a każdym serwisem googla
         //tworze buildera, który dostarcza metody dzięki którym mogę wyspecyfikować Google API, które chę użyć
-        mGoogleApiClient = new GoogleApiClient.Builder(this)//create GoogleApiClient object using the Builder pattern
-                // The next two lines tell the new client that “this” current class will handle connection stuff
-                .addConnectionCallbacks(this)	//specyfikowane przy asynchronicznym połączeniu, otrzymanie odpowiedzi zwrotnej przy success
-                .addOnConnectionFailedListener(this)	//specyfikowane przy asynchronicznym połączeniu, otrzymanie odpowiedzi zwrotnej przy fail
-                        //fourth line adds the LocationServices API endpoint from GooglePlayServices
-                .addApi(LocationServices.API)//adds the LocationServices API endpoint from GooglePlayServices, and then finally the client is built for us
-                .build();
+        //specyfikowane przy asynchronicznym połączeniu, otrzymanie odpowiedzi zwrotnej przy success
+        //specyfikowane przy asynchronicznym połączeniu, otrzymanie odpowiedzi zwrotnej przy success
+        //specyfikowane przy asynchronicznym połączeniu, otrzymanie odpowiedzi zwrotnej przy fail
+        mGoogleApiClient = new GoogleApiClient.Builder(this).addConnectionCallbacks(this).addOnConnectionFailedListener(this).addApi(LocationServices.API).build();
 
         buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -147,63 +130,16 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
             }
         });
 
-        buttonAddFolder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Dodanie nowego katalogu", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-                addFolder();
-
-
-            }
-        });
-
-        buttonAddComment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Dodanie nowego komentarza", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-                editComment.setVisibility(View.VISIBLE);
-
-            }
-        });
-
-        buttonJSON.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new AlertDialog.Builder(Map.this)
-                        .setTitle("JSON Object")
-                        .setMessage(jsonObject.toString())
-                        .setCancelable(false)
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // whatever...
-                            }
-                        }).create().show();
-
-            }
-        });
 
         editComment.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-
-                    try {
-                        if (!jsonObject.has("comments")) {
-                            updateObject = new JSONArray();
-                            updateObject.put(editComment.getText());
-                            jsonObject.put("comments", updateObject);
-                        } else {
-                            updateObject = jsonObject.getJSONArray("comments");
-                            updateObject.put(editComment.getText());
-                            jsonObject.put("comments", updateObject);
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy, DatabaseAdapter.KEY_TITLE, editComment.getText().toString());
                     editComment.setText("");
                     editComment.setVisibility(View.INVISIBLE);
                 }
+
                 return false;
             }
         });
@@ -221,8 +157,6 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
                 }
             }
         });
-
-
     }
 
 
@@ -287,43 +221,41 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
             currentLongitude = location.getLongitude();
             latLng = new LatLng(currentLatitude, currentLongitude);
 
-
+            //pierwsze rysowanie na mapie
             if (quantityRoute == 0) {
                 counterRoutes = 1;
                 quantityRoute = 2;
                 currentZoom = 16;
-                markerOptions = new MarkerOptions().position(latLng); //.icon(iconMarker)
-                //markerOptions = markerOptions.position(latLng).title("I am here!");
+                markerOptions = new MarkerOptions().position(latLng);
                 marker = map.addMarker(markerOptions);
                 layoutBelowMap.setVisibility(View.INVISIBLE);
                 previousLatLng = latLng;
                 recognizeLocation(latLng);
                 raportSwitch.setEnabled(true);
-                buttonAddFolder.setEnabled(true);
-                buttonAddComment.setEnabled(true);
-                buttonJSON.setEnabled(true);
             }
+
+            //kontynuujemy rysowanie- kolejny punkt na tej samej rasie
             else if (quantityRoute == 2) {
                 currentZoom = map.getCameraPosition().zoom;
                 marker.setPosition(latLng);
                 line = map.addPolyline(new PolylineOptions().add(previousLatLng, latLng).width(15).color(Color.parseColor("#FF4081")));
                 previousLatLng = latLng;
-                updateObject = jsonObject.getJSONArray("route"+Integer.toString(counterRoutes));
-                updateObject.put(Double.toString(latLng.latitude) + "," + Double.toString(latLng.longitude));
+                databaseAdapter.wstawKrotkeDoTabeliWspolrzedne(Double.toString(latLng.latitude), Double.toString(latLng.longitude), (int) numerObecnejTrasy);
             }
-            else if (quantityRoute == 1) {
 
+            //jezeli zaczynam kolejna trase- zaczynamy nowe rysowanie
+            else if (quantityRoute == 1) {
                 counterRoutes++;
                 currentZoom = map.getCameraPosition().zoom;
                 marker.setPosition(latLng);
                 previousLatLng = latLng;
-                updateObject = new JSONArray();
-                updateObject.put(Double.toString(latLng.latitude) + "," + Double.toString(latLng.longitude));
-                jsonObject.put("route"+Integer.toString(counterRoutes), updateObject);
+                numerObecnejTrasy = databaseAdapter.wstawKrotkeDoTabeliTrasa((int) numerObecnejPodrozy);
+                databaseAdapter.wstawKrotkeDoTabeliWspolrzedne(Double.toString(latLng.latitude), Double.toString(latLng.longitude), (int) numerObecnejTrasy);
                 quantityRoute = 2;
             }
+
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, currentZoom));
-            Log.d(TAG, jsonObject.toString());
+            databaseAdapter.wypiszTabele();
         }
     }
 
@@ -335,27 +267,27 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
 
             SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
             String currentDateandTime = sdf.format(new Date());
-
             Address address = listAddress.get(0);
-            jsonObject.put("country", address.getCountryName());
-            jsonObject.put("city", address.getLocality());
-            jsonObject.put("dateStart", currentDateandTime);
-            updateObject = new JSONArray();
-            updateObject.put(Double.toString(latLng.latitude) + "," + Double.toString(latLng.longitude));
-            jsonObject.put("route" + Integer.toString(counterRoutes), updateObject);
+            numerObecnejPodrozy = databaseAdapter.wstawKrotkeDoTabeliPodroze(DatabaseAdapter.KEY_COUNTRY, address.getCountryName());
+            Log.d("sadd", "" + numerObecnejPodrozy);
+            databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy, DatabaseAdapter.KEY_CITY, address.getLocality());
+            databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy, DatabaseAdapter.KEY_DATE_START, currentDateandTime);
+            numerObecnejTrasy = databaseAdapter.wstawKrotkeDoTabeliTrasa((int) numerObecnejPodrozy);
+            databaseAdapter.wstawKrotkeDoTabeliWspolrzedne(Double.toString(latLng.latitude), Double.toString(latLng.longitude), (int) numerObecnejTrasy);
+
             if (toolbar.getTitle() == " NOWA PODRÓŻ") {
                 toolbar.setTitle(" ["+currentDateandTime+"]      "+address.getLocality().toUpperCase());
                 setSupportActionBar(toolbar);
+                databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy, DatabaseAdapter.KEY_TITLE, " ["+currentDateandTime+"]      "+address.getLocality().toUpperCase());
             }
+            databaseAdapter.wypiszTabele();
         }
     }
 
     private void addFolder() {
-
         markerOptionsFolder = new MarkerOptions().position(latLng).icon(iconFolder);
         map.addMarker(markerOptionsFolder);
-
-        try {
+        /*try {
             if (!jsonObject.has("folders")) {
                 updateObject = new JSONArray();
                 updateObject.put(Double.toString(latLng.latitude) + "," + Double.toString(latLng.longitude));
@@ -367,42 +299,64 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
             }
         } catch (JSONException e) {
             e.printStackTrace();
-        }
+        }*/
+    }
 
+
+    private void wlaczenieWszystkichButton() {
+        map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+        buttonStart = (FloatingActionButton) findViewById(R.id.buttonStart);
+        buttonCamera = (FloatingActionButton) findViewById(R.id.camera);
+        geocoder= new Geocoder(getApplicationContext(), Locale.getDefault());
+        raportSwitch = (Switch) findViewById(R.id.raportSwitch);
+        editComment = (EditText) findViewById(R.id.editComment);
+        layoutBelowMap = (RelativeLayout) findViewById(R.id.layoutBelowMap);
+        raportSwitch.setEnabled(false);
+        buttonCamera.setEnabled(false);
+        iconFolder = BitmapDescriptorFactory.fromResource(R.drawable.folder_image);
     }
 
 
 
 
 
-
-
-
-
+    //inflator napompuje akcje, które zostały zdefiniowane w XML i doda je do action bar
+    //MenuInflator dostanie dostep przez getMenuInflator z obecnego activity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        inflater.inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        switch (item.getItemId()) {
+            // action with ID action_refresh was selected
+            case R.id.action_dodaj_folder:
+                Toast.makeText(this, "Dodanie nowego katalogu", Toast.LENGTH_SHORT).show();
+                addFolder();
+                break;
+            case R.id.action_dodaj_komentarz:
+                Toast.makeText(this, "Dodanie komentarza", Toast.LENGTH_SHORT).show();
+                editComment.setVisibility(View.VISIBLE);
+                break;
+            case R.id.action_usuwanie_danych:
+                Toast.makeText(this, "Usuwanie bazy danych", Toast.LENGTH_SHORT).show();
+                databaseAdapter.usuwanieBazyDanych();
+                break;
+            // action with ID action_settings was selected
+            case R.id.action_setting:
+                Toast.makeText(this, "Zmiana tytułu", Toast.LENGTH_SHORT).show();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+                break;
+            default:
+                break;
         }
 
-        return super.onOptionsItemSelected(item);
+        return true;
     }
-
-
-
 
 
 

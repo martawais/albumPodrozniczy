@@ -10,28 +10,49 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
 
 public class MainActivity extends AppCompatActivity {
 
     Intent intent;
     final private int REQUEST_FINE_LOCATION = 0;
+    private String[] nazwyPodrozy;
+    private DatabaseAdapter databaseAdapter;
+    private ListView listView;
+    String[] krotki;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+
+        listView = (ListView) findViewById(R.id.listView);
+        FloatingActionButton dodajNowaPodroz = (FloatingActionButton) findViewById(R.id.fab);
+
+
 
         //if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
         if (!ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},REQUEST_FINE_LOCATION);
         }
-       // }
 
-        fab.setOnClickListener(new View.OnClickListener() {
+
+       /* listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View v, int pos, long id) {
+                Toast.makeText(getApplicationContext(),
+                        "Podroz nr: " + pos,
+                        Toast.LENGTH_SHORT).show();
+            }
+        });*/
+
+        dodajNowaPodroz.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Znajdz swoja lokalizacje", Snackbar.LENGTH_LONG)
@@ -47,6 +68,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        aktualizacjaKrotekZTabeliPodroze();
+        inicjalizacjaListView();
+    }
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -61,10 +88,21 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_setting) {
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void inicjalizacjaListView() {
+        listView.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, krotki));
+    }
+
+    private void aktualizacjaKrotekZTabeliPodroze() {
+        databaseAdapter = new DatabaseAdapter(getApplicationContext());
+        databaseAdapter.open();
+        krotki = databaseAdapter.wypisanieWszystkichKolumnTabeliPodroze();
+        databaseAdapter.close();
     }
 }

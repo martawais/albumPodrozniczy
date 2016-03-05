@@ -2,37 +2,16 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="100dp">
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/buttonAddFolder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginLeft="20dp"
-        android:layout_marginBottom="20dp"
-        android:visibility="visible"
-        android:clickable="true"
-        android:src="@drawable/folder_plus" />
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/buttonAddComment"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@id/buttonAddFolder"
-        android:layout_marginLeft="70dp"
-        android:layout_marginBottom="20dp"
-        android:layout_alignParentBottom="true"
-        android:visibility="visible"
-        android:clickable="true"
-        android:src="@drawable/comment_plus_outline" />
+
     <EditText
-        android:layout_width="500dp"
+        android:layout_width="800dp"
         android:layout_height="wrap_content"
         android:hint="Dodaj komentarz"
         android:visibility="invisible"
         android:id="@+id/editComment"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="35dp"
-        android:layout_toEndOf="@+id/buttonAddComment"
+        android:layout_toStartOf="@+id/raportSwitch"
         android:imeOptions="actionDone"
         android:singleLine="true"
         android:layout_marginStart="20dp" />
