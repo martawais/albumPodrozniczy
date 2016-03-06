@@ -3,26 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
 
     <item
-        android:id="@+id/action_dodaj_folder"
+        android:id="@+id/action_usun"
         android:title="Refresh"
         android:orderInCategory="100"
-        android:icon="@drawable/folder_plus"
-        app:showAsAction="always" />
-    <item
-        android:id="@+id/action_dodaj_komentarz"
-        android:title="Refresh"
-        android:orderInCategory="100"
-        android:icon="@drawable/comment_plus_outline"
-        app:showAsAction="always" />
-    <item
-        android:id="@+id/action_usuwanie_danych"
-        android:title="Refresh"
-        android:orderInCategory="100"
-        android:icon="@drawable/database"
+        android:icon="@drawable/delete_forever"
         app:showAsAction="always" />
     <item
         android:id="@+id/action_setting"
-        android:title="Zmień nazwę podróży">
+        android:title="Ustawienia">
     </item>
 
 </menu>

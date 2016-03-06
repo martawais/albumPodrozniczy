@@ -1,0 +1,19 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" tools:context=".BuildExistMap">
+
+    <item
+        android:id="@+id/action_edytuj_mape"
+        android:title="Edytuj"
+        android:orderInCategory="100"
+        android:icon="@drawable/edit"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_załacz_zdjecie"
+        android:title="Edytuj"
+        android:orderInCategory="100"
+        android:icon="@drawable/attach_file"
+        app:showAsAction="always" />
+
+
+</menu>

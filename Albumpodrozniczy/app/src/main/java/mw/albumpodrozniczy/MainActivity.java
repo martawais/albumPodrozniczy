@@ -10,13 +10,18 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity {
 
     Intent intent;
+
+    public final static String POZYCJA = "pozycja";
+
     final private int REQUEST_FINE_LOCATION = 0;
     private String[] nazwyPodrozy;
     private DatabaseAdapter databaseAdapter;
@@ -72,6 +77,18 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         aktualizacjaKrotekZTabeliPodroze();
         inicjalizacjaListView();
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                intent = new Intent(MainActivity.this, BuildExistMap.class);
+                intent.putExtra(POZYCJA, position);
+                startActivity(intent);
+            }
+        });
+
+
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -88,7 +105,14 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_setting) {
+        if (id == R.id.action_usun) {
+            databaseAdapter.open();
+            Toast.makeText(this, "Czyszczenie bazy danych", Toast.LENGTH_SHORT).show();
+            databaseAdapter.usuwanieBazyDanych();
+            databaseAdapter.close();
+            onResume();
+            //String nazwa_podrozy = databaseAdapter.pobranieWartosciZTabeli(databaseAdapter.DB_TABLE_MAIN, DatabaseAdapter.KEY_TITLE, 2);
+            //Toast.makeText(this, nazwa_podrozy, Toast.LENGTH_LONG).show();
             return true;
         }
 

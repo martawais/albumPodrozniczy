@@ -59,6 +59,10 @@ public class DatabaseAdapter {
     public static final String DATE_END_OPTIONS = "TEXT NULL";
     public static final int DATE_END_COLUMN = 5;
 
+    public static final String KEY_COMMENT = "comment";
+    public static final String COMMENT_OPTIONS = "TEXT NULL";
+    public static final int COMMENT_COLUMN = 6;
+
     //dane do drugiej tabeli TRASA:
     public static final String KEY_TRASA_ID = "_id";
     public static final String ID_TRASA_OPTIONS = "INTEGER PRIMARY KEY AUTOINCREMENT";
@@ -79,11 +83,11 @@ public class DatabaseAdapter {
 
     public static final String KEY_WSPOLRZEDNE_WYSOKOSC = "wysokosc";
     public static final String WSPOLRZEDNE_WYSOKOSC_OPTIONS = "TEXT NULL";
-    public static final int WSPOLRZEDNE_WYSOKOSC_COLUMN = 1;
+    public static final int WSPOLRZEDNE_WYSOKOSC_COLUMN = 2;
 
     public static final String KEY_WSPOLRZEDNE_ID_TRASA = "idtrasa";
     public static final String WSPOLRZEDNE_ID_TRASA_OPTIONS = "INTEGER NULL";
-    public static final int WSPOLRZEDNE_ID_TRASA_COLUMN = 1;
+    public static final int WSPOLRZEDNE_ID_TRASA_COLUMN = 3;
 
 
 
@@ -97,7 +101,8 @@ public class DatabaseAdapter {
                     KEY_COUNTRY + " " + COUNTRY_OPTIONS + ", " +
                     KEY_CITY + " " + CITY_OPTIONS + ", " +
                     KEY_DATE_START + " " + DATE_START_OPTIONS + ", " +
-                    KEY_DATE_END + " " + DATE_END_OPTIONS +
+                    KEY_DATE_END + " " + DATE_END_OPTIONS + ", " +
+                    KEY_COMMENT + " " + COMMENT_OPTIONS +
                     ");";
     //stało do usuwania pierwszej tabeli
     public static final String DROP_TABLE_MAIN =
@@ -181,6 +186,7 @@ public class DatabaseAdapter {
         nowaKrotka.putNull(KEY_CITY);
         nowaKrotka.putNull(KEY_DATE_START);
         nowaKrotka.putNull(KEY_DATE_END);
+        nowaKrotka.putNull(KEY_COMMENT);
         return database.insert(DB_TABLE_MAIN, null, nowaKrotka);
     }
 
@@ -208,6 +214,10 @@ public class DatabaseAdapter {
         return krotki;
     }
 
+    public String pobranieWartosciZTabeli(String nazwa_tabeli, String nazwa_kolumny, Integer pozycja) {
+        String wartosc = dbHelper.dostanieWartosciZTabeli(database, nazwa_tabeli, nazwa_kolumny, pozycja);
+        return wartosc;
+    }
 
 
 

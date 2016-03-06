@@ -82,6 +82,8 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
     private EditText editComment;
     private RelativeLayout layoutBelowMap;
 
+    private int komentarz_tytul; //komentarz 0, tytul 1;
+
     private DatabaseAdapter databaseAdapter;
 
 
@@ -97,7 +99,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
         setContentView(R.layout.activity_map);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(" NOWA PODRÓŻ");
+        toolbar.setTitle(" Podróż");
         setSupportActionBar(toolbar);
 
         databaseAdapter = new DatabaseAdapter(getApplicationContext());
@@ -131,13 +133,22 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
         });
 
 
+        //nasłuchuje
         editComment.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy, DatabaseAdapter.KEY_TITLE, editComment.getText().toString());
-                    editComment.setText("");
-                    editComment.setVisibility(View.INVISIBLE);
+                    if(komentarz_tytul == 1) {
+                        databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy, DatabaseAdapter.KEY_TITLE, editComment.getText().toString());
+                        toolbar.setTitle(" " + editComment.getText().toString());
+                        editComment.setText("");
+                        editComment.setVisibility(View.INVISIBLE);
+                    }
+                    else if(komentarz_tytul == 0) {
+                        databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy, DatabaseAdapter.KEY_COMMENT, editComment.getText().toString());
+                        editComment.setText("");
+                        editComment.setVisibility(View.INVISIBLE);
+                    }
                 }
 
                 return false;
@@ -275,11 +286,11 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
             numerObecnejTrasy = databaseAdapter.wstawKrotkeDoTabeliTrasa((int) numerObecnejPodrozy);
             databaseAdapter.wstawKrotkeDoTabeliWspolrzedne(Double.toString(latLng.latitude), Double.toString(latLng.longitude), (int) numerObecnejTrasy);
 
-            if (toolbar.getTitle() == " NOWA PODRÓŻ") {
+            /*if (toolbar.getTitle() == " PODRÓŻ") {
                 toolbar.setTitle(" ["+currentDateandTime+"]      "+address.getLocality().toUpperCase());
                 setSupportActionBar(toolbar);
                 databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy, DatabaseAdapter.KEY_TITLE, " ["+currentDateandTime+"]      "+address.getLocality().toUpperCase());
-            }
+            }*/
             databaseAdapter.wypiszTabele();
         }
     }
@@ -326,7 +337,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         // Inflate the menu; this adds items to the action bar if it is present.
-        inflater.inflate(R.menu.menu_main, menu);
+        inflater.inflate(R.menu.menu_map, menu);
         return true;
     }
 
@@ -340,16 +351,16 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
                 break;
             case R.id.action_dodaj_komentarz:
                 Toast.makeText(this, "Dodanie komentarza", Toast.LENGTH_SHORT).show();
+                komentarz_tytul = 0;
+                editComment.setHint("Nowy komentarz");
                 editComment.setVisibility(View.VISIBLE);
                 break;
-            case R.id.action_usuwanie_danych:
-                Toast.makeText(this, "Usuwanie bazy danych", Toast.LENGTH_SHORT).show();
-                databaseAdapter.usuwanieBazyDanych();
-                break;
             // action with ID action_settings was selected
-            case R.id.action_setting:
+            case R.id.action_zmien_tytul:
                 Toast.makeText(this, "Zmiana tytułu", Toast.LENGTH_SHORT).show();
-
+                komentarz_tytul = 1;
+                editComment.setHint("Nowy tytuł podróży");
+                editComment.setVisibility(View.VISIBLE);
                 break;
             default:
                 break;

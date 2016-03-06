@@ -65,7 +65,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String string4 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_CITY));
                 String string5 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_START));
                 String string6 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_END));
-                Log.d(DatabaseAdapter.DEBUG_TAG_DB, string1+","+string2+","+string3+","+string4+","+string5+","+string6); // Only assign string value if we moved to first record
+                String string7 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COMMENT));
+                Log.d(DatabaseAdapter.DEBUG_TAG_DB, string1+","+string2+","+string3+","+string4+","+string5+","+string6+","+string7); // Only assign string value if we moved to first record
                 cursor.moveToNext();
             }
         }
@@ -93,19 +94,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public String[] dostanieWszystkichKolumnTabeliPodroze(SQLiteDatabase db) {
-        String[] columns = {DatabaseAdapter.KEY_ID, DatabaseAdapter.KEY_TITLE, DatabaseAdapter.KEY_COUNTRY,DatabaseAdapter.KEY_CITY,DatabaseAdapter.KEY_DATE_START};
+        String[] columns = {DatabaseAdapter.KEY_ID, DatabaseAdapter.KEY_TITLE, DatabaseAdapter.KEY_COUNTRY,DatabaseAdapter.KEY_CITY,DatabaseAdapter.KEY_DATE_START,DatabaseAdapter.KEY_COMMENT};
         cursor = db.query(DatabaseAdapter.DB_TABLE_MAIN, columns, null, null, null, null, null);
         int iloscKrotekPodroze = cursor.getCount();
         String[] krotki = new String[iloscKrotekPodroze];
         if(cursor.moveToFirst()) {
             int i = 0;
             while (cursor.isAfterLast() == false) {
-                krotki[i] = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ID)) +"    "+ cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_TITLE)) +"  "+ cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COUNTRY)) +"  "+ cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_CITY)) +"  "+ cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_START));
+                krotki[i] = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ID)) +"    "+ cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_TITLE)) +"  "+ cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COUNTRY)) +"  "+ cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_CITY)) +"  "+ cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_START)) +"  "+ cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COMMENT));
                 cursor.moveToNext();
                 i++;
             }
         }
         return krotki;
+    }
+
+
+    public String dostanieWartosciZTabeli(SQLiteDatabase db, String nazwa_tabeli, String nazwa_kolumny, Integer pozycja) {
+        String wartosc = null;
+        String[] columns = {nazwa_kolumny};
+        pozycja++;
+        String where = DatabaseAdapter.KEY_ID + "=" + pozycja;
+        cursor = db.query(nazwa_tabeli, columns,where, null, null, null, null, null);
+        if(cursor.moveToFirst()) {
+            wartosc = cursor.getString(cursor.getColumnIndex(nazwa_kolumny));
+            Log.d(DatabaseAdapter.DEBUG_TAG_DB, ""+wartosc);
+        }
+        return wartosc;
     }
 
     //funkcja wywołująca zapytanie SQL do usuniecia tabeli
