@@ -16,13 +16,22 @@ import android.widget.Toast;
  */
 public class BuildExistMap extends AppCompatActivity {
 
+    public final static String EDYCJA = "edycja";
+    public final static String POZYCJA_PODROZY = "pozycjaPodrozy";
+
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private DatabaseAdapter databaseAdapter;
 
     private String nazwa_podrozy;
-    private int pozycja;
+    public int pozycja;
+
+    public boolean edycja = true;
+
+
+    private Map map;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,10 +57,31 @@ public class BuildExistMap extends AppCompatActivity {
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+
+
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        databaseAdapter = new DatabaseAdapter(getApplicationContext());
+        databaseAdapter.open();
+        nazwa_podrozy = databaseAdapter.pobranieWartosciZTabeli(databaseAdapter.DB_TABLE_MAIN, DatabaseAdapter.KEY_TITLE, pozycja);
+        int[] tablica = databaseAdapter.pobranieTablicyWszystkichTras(pozycja);
+        for(int i=0; i<tablica.length;i++) {
+            Toast.makeText(this, tablica[i]+"", Toast.LENGTH_SHORT).show();
+        }
+
+        databaseAdapter.close();
+        toolbar.setTitle(nazwa_podrozy);
+        setSupportActionBar(toolbar);
+
+
     }
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        Intent intent = new Intent(BuildExistMap.this, OneFragment.class);
+        intent.putExtra(POZYCJA_PODROZY, (long) pozycja+1);
         adapter.addFragment(new OneFragment(), "MAPA");
         adapter.addFragment(new TwoFragment(), "ALBUM");
         viewPager.setAdapter(adapter);
@@ -71,11 +101,15 @@ public class BuildExistMap extends AppCompatActivity {
             // action with ID action_refresh was selected
             case R.id.action_edytuj_mape:
                 Toast.makeText(this, "Edytuj mape", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(BuildExistMap.this, Map.class);
+                intent.putExtra(EDYCJA, edycja);
+                intent.putExtra(POZYCJA_PODROZY, (long) pozycja+1);
+                startActivity(intent);
 
                 break;
             case R.id.action_załacz_zdjecie:
                 Toast.makeText(this, "Załącz zdjęcie", Toast.LENGTH_SHORT).show();
-                //editComment.setVisibility(View.VISIBLE);
+
                 break;
 
             default:
@@ -84,4 +118,7 @@ public class BuildExistMap extends AppCompatActivity {
 
         return true;
     }
+
+
+
 }

@@ -57,7 +57,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     //wypisanie calej tabel
     public void selectTable(SQLiteDatabase db) {
         cursor = db.rawQuery(DatabaseAdapter.SELECT_TABLE_MAIN, null);
-        if(cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             while (cursor.isAfterLast() == false) {
                 String string1 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ID));
                 String string2 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_TITLE));
@@ -66,27 +66,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String string5 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_START));
                 String string6 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_END));
                 String string7 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COMMENT));
-                Log.d(DatabaseAdapter.DEBUG_TAG_DB, string1+","+string2+","+string3+","+string4+","+string5+","+string6+","+string7); // Only assign string value if we moved to first record
+                Log.d(DatabaseAdapter.DEBUG_TAG_DB, string1 + "," + string2 + "," + string3 + "," + string4 + "," + string5 + "," + string6 + "," + string7); // Only assign string value if we moved to first record
                 cursor.moveToNext();
             }
         }
         cursor = db.rawQuery(DatabaseAdapter.SELECT_TABLE_TRASA, null);
-        if(cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             while (cursor.isAfterLast() == false) {
                 String string1 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_TRASA_ID));
                 String string2 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_TRASA_ID_PODROZE));
-                Log.d(DatabaseAdapter.DEBUG_TAG_DB, string1+","+string2); // Only assign string value if we moved to first record
+                Log.d(DatabaseAdapter.DEBUG_TAG_DB, string1 + "," + string2); // Only assign string value if we moved to first record
                 cursor.moveToNext();
             }
         }
         cursor = db.rawQuery(DatabaseAdapter.SELECT_TABLE_WSPOLRZEDNE, null);
-        if(cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             while (cursor.isAfterLast() == false) {
                 String string1 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_WSPOLRZEDNE_ID));
                 String string2 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_WSPOLRZEDNE_SZEROKOSC));
                 String string3 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_WSPOLRZEDNE_WYSOKOSC));
                 String string4 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_WSPOLRZEDNE_ID_TRASA));
-                Log.d(DatabaseAdapter.DEBUG_TAG_DB, string1+","+string2+","+string3+","+string4); // Only assign string value if we moved to first record
+                Log.d(DatabaseAdapter.DEBUG_TAG_DB, string1 + "," + string2 + "," + string3 + "," + string4); // Only assign string value if we moved to first record
                 cursor.moveToNext();
             }
         }
@@ -94,14 +94,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public String[] dostanieWszystkichKolumnTabeliPodroze(SQLiteDatabase db) {
-        String[] columns = {DatabaseAdapter.KEY_ID, DatabaseAdapter.KEY_TITLE, DatabaseAdapter.KEY_COUNTRY,DatabaseAdapter.KEY_CITY,DatabaseAdapter.KEY_DATE_START,DatabaseAdapter.KEY_COMMENT};
+        String[] columns = {DatabaseAdapter.KEY_ID, DatabaseAdapter.KEY_TITLE, DatabaseAdapter.KEY_COUNTRY, DatabaseAdapter.KEY_CITY, DatabaseAdapter.KEY_DATE_START, DatabaseAdapter.KEY_COMMENT};
         cursor = db.query(DatabaseAdapter.DB_TABLE_MAIN, columns, null, null, null, null, null);
         int iloscKrotekPodroze = cursor.getCount();
         String[] krotki = new String[iloscKrotekPodroze];
-        if(cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             int i = 0;
             while (cursor.isAfterLast() == false) {
-                krotki[i] = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ID)) +"    "+ cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_TITLE)) +"  "+ cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COUNTRY)) +"  "+ cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_CITY)) +"  "+ cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_START)) +"  "+ cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COMMENT));
+                krotki[i] = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ID)) + "    " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_TITLE)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COUNTRY)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_CITY)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_START)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COMMENT));
                 cursor.moveToNext();
                 i++;
             }
@@ -115,10 +115,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String[] columns = {nazwa_kolumny};
         pozycja++;
         String where = DatabaseAdapter.KEY_ID + "=" + pozycja;
-        cursor = db.query(nazwa_tabeli, columns,where, null, null, null, null, null);
-        if(cursor.moveToFirst()) {
+        cursor = db.query(nazwa_tabeli, columns, where, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
             wartosc = cursor.getString(cursor.getColumnIndex(nazwa_kolumny));
-            Log.d(DatabaseAdapter.DEBUG_TAG_DB, ""+wartosc);
+            Log.d(DatabaseAdapter.DEBUG_TAG_DB, "" + wartosc);
         }
         return wartosc;
     }
@@ -137,5 +137,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Log.d(DatabaseAdapter.DEBUG_TAG_DB, "DB usunieta");
     }
 
+    public int[] findAllRoutes(SQLiteDatabase db, Integer pozycjaPodrozy) {
 
+
+
+        String[] columns = {DatabaseAdapter.KEY_TRASA_ID};
+        pozycjaPodrozy++;
+        String where = DatabaseAdapter.KEY_TRASA_ID_PODROZE + "=" + pozycjaPodrozy;
+        cursor=db.query("trasy",columns,where,null,null,null,null,null);
+        int i = 0;
+        int[] tablicaRoutes = new int[cursor.getCount()];
+        Log.d(DatabaseAdapter.DEBUG_TAG_DB, "liczba rzedow" + cursor.getCount());
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            tablicaRoutes[i] = cursor.getInt(cursor.getColumnIndex(DatabaseAdapter.KEY_TRASA_ID));
+            Log.d(DatabaseAdapter.DEBUG_TAG_DB, "" + tablicaRoutes[i]);
+            i++;
+            cursor.moveToNext();
+        }
+
+        return tablicaRoutes;
+    }
 }
+
+

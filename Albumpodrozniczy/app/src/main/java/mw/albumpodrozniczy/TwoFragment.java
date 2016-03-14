@@ -11,6 +11,7 @@ import android.view.ViewGroup;
  */
 public class TwoFragment extends Fragment {
 
+
     public TwoFragment() {
         // Required empty public constructor
     }
@@ -26,5 +27,6 @@ public class TwoFragment extends Fragment {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_two, container, false);
     }
+
 
 }

@@ -220,6 +220,13 @@ public class DatabaseAdapter {
     }
 
 
+    public int[] pobranieTablicyWszystkichTras(Integer pozycjaPodrozy) {
+        int[] tablica;
+        tablica = dbHelper.findAllRoutes(database, pozycjaPodrozy);
+
+        return tablica;
+    }
+
 
     public boolean aktualizacjaKrotkiTabeliPodroze(long id, String klucz, String opis) {
         String where = KEY_ID + "=" + id;
