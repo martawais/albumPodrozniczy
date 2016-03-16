@@ -139,8 +139,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public int[] findAllRoutes(SQLiteDatabase db, Integer pozycjaPodrozy) {
 
-
-
         String[] columns = {DatabaseAdapter.KEY_TRASA_ID};
         pozycjaPodrozy++;
         String where = DatabaseAdapter.KEY_TRASA_ID_PODROZE + "=" + pozycjaPodrozy;
@@ -151,6 +149,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             tablicaRoutes[i] = cursor.getInt(cursor.getColumnIndex(DatabaseAdapter.KEY_TRASA_ID));
+            Log.d(DatabaseAdapter.DEBUG_TAG_DB, "" + tablicaRoutes[i]);
+            i++;
+            cursor.moveToNext();
+        }
+
+        return tablicaRoutes;
+    }
+
+
+    public double[] findAllCoordinates(SQLiteDatabase db, Integer numerTrasy, String geograficzna) {
+
+        String KOLUMNA = null;
+        if(geograficzna=="szerokosc") {
+            KOLUMNA = "szerokosc";
+        }
+        else if(geograficzna=="dlugosc"){
+            KOLUMNA = "wysokosc";
+        }
+        String[] columns = {KOLUMNA};
+        numerTrasy++;
+        String where = DatabaseAdapter.KEY_WSPOLRZEDNE_ID_TRASA + "=" + numerTrasy;
+        cursor=db.query("wspolrzedne",columns,where,null,null,null,null,null);
+        int i = 0;
+        double[] tablicaRoutes = new double[cursor.getCount()];
+        Log.d(DatabaseAdapter.DEBUG_TAG_DB, "liczba rzedow" + cursor.getCount());
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            tablicaRoutes[i] = cursor.getDouble(cursor.getColumnIndex(KOLUMNA));
             Log.d(DatabaseAdapter.DEBUG_TAG_DB, "" + tablicaRoutes[i]);
             i++;
             cursor.moveToNext();

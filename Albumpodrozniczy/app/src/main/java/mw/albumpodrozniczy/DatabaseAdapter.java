@@ -227,6 +227,13 @@ public class DatabaseAdapter {
         return tablica;
     }
 
+    public double[] pobranieTablicyWszystkichWspolrzedne(Integer numerTrasy, String geo) {
+        double[] tablica;
+        tablica = dbHelper.findAllCoordinates(database, numerTrasy, geo);
+
+        return tablica;
+    }
+
 
     public boolean aktualizacjaKrotkiTabeliPodroze(long id, String klucz, String opis) {
         String where = KEY_ID + "=" + id;

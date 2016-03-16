@@ -67,10 +67,6 @@ public class BuildExistMap extends AppCompatActivity {
         databaseAdapter.open();
         nazwa_podrozy = databaseAdapter.pobranieWartosciZTabeli(databaseAdapter.DB_TABLE_MAIN, DatabaseAdapter.KEY_TITLE, pozycja);
         int[] tablica = databaseAdapter.pobranieTablicyWszystkichTras(pozycja);
-        for(int i=0; i<tablica.length;i++) {
-            Toast.makeText(this, tablica[i]+"", Toast.LENGTH_SHORT).show();
-        }
-
         databaseAdapter.close();
         toolbar.setTitle(nazwa_podrozy);
         setSupportActionBar(toolbar);
@@ -80,9 +76,14 @@ public class BuildExistMap extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        Intent intent = new Intent(BuildExistMap.this, OneFragment.class);
-        intent.putExtra(POZYCJA_PODROZY, (long) pozycja+1);
-        adapter.addFragment(new OneFragment(), "MAPA");
+
+        Bundle bundle = new Bundle();
+        bundle.putInt(POZYCJA_PODROZY, pozycja);
+        OneFragment oneFragment = new OneFragment();
+        oneFragment.setArguments(bundle);
+
+
+        adapter.addFragment(oneFragment, "MAPA");
         adapter.addFragment(new TwoFragment(), "ALBUM");
         viewPager.setAdapter(adapter);
     }
@@ -103,7 +104,7 @@ public class BuildExistMap extends AppCompatActivity {
                 Toast.makeText(this, "Edytuj mape", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(BuildExistMap.this, Map.class);
                 intent.putExtra(EDYCJA, edycja);
-                intent.putExtra(POZYCJA_PODROZY, (long) pozycja+1);
+                intent.putExtra(POZYCJA_PODROZY,  pozycja);
                 startActivity(intent);
 
                 break;
