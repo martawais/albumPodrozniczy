@@ -98,7 +98,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
 
 
 
-    private static final int REQUEST_CODE = 1;
+    private static final int CAMERA_REQUEST = 1888;
     private Bitmap bitmap;
     private ImageView imageView;
     private Intent intent;
@@ -198,19 +198,22 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
             }
         });
 
-/*
+
         buttonCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.setType("image*/
-/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                startActivityForResult(intent, REQUEST_CODE);
+
+                intent = new Intent(Map.this, CameraModule.class);
+                startActivity(intent);
+               // Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                //intent.setType("image*/");
+               // intent.setAction(Intent.ACTION_GET_CONTENT);
+               // intent.addCategory(Intent.CATEGORY_OPENABLE);
+              //  startActivityForResult(intent, CAMERA_REQUEST);
             }
         });
-*/
+
+
 
 
         //nasłuchuje
@@ -258,6 +261,15 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
         });
     }
 
+   /* @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
+            Bitmap photo = (Bitmap) data.getExtras().get("data");
+            ImageView picture = (ImageView)findViewById(R.id.picture);
+            picture.setImageBitmap(photo);
+        }
+    }*/
 
     @Override
     protected void onStart() {

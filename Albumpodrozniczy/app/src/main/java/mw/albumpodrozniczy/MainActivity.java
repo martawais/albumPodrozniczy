@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     public final static String POZYCJA = "pozycja";
 
     final private int REQUEST_FINE_LOCATION = 0;
+    final private int REQUEST_CAMERA = 0;
     private String[] nazwyPodrozy;
     private DatabaseAdapter databaseAdapter;
     private ListView listView;
@@ -44,10 +45,13 @@ public class MainActivity extends AppCompatActivity {
 
 
         //if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.CAMERA)) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA},REQUEST_CAMERA);
+        }
+
         if (!ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},REQUEST_FINE_LOCATION);
         }
-
 
        /* listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int pos, long id) {
