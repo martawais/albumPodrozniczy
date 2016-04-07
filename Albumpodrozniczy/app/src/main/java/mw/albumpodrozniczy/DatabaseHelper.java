@@ -33,10 +33,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(DatabaseAdapter.DB_CREATE_TABLE_MAIN);
         db.execSQL(DatabaseAdapter.DB_CREATE_TABLE_TRASA);
         db.execSQL(DatabaseAdapter.DB_CREATE_TABLE_WSPOLRZEDNE);
+        db.execSQL(DatabaseAdapter.DB_CREATE_TABLE_ALBUM);
+        db.execSQL(DatabaseAdapter.DB_CREATE_TABLE_ZDJECIA);
         Log.d(DatabaseAdapter.DEBUG_TAG_DB, "Database creating...");
         Log.d(DatabaseAdapter.DEBUG_TAG_DB, "Table " + DatabaseAdapter.DB_TABLE_MAIN + " ver." + DatabaseAdapter.DB_VERSION + " created");
         Log.d(DatabaseAdapter.DEBUG_TAG_DB, "Table " + DatabaseAdapter.DB_TABLE_TRASA + " ver." + DatabaseAdapter.DB_VERSION + " created");
         Log.d(DatabaseAdapter.DEBUG_TAG_DB, "Table " + DatabaseAdapter.DB_TABLE_WSPOLRZEDNE + " ver." + DatabaseAdapter.DB_VERSION + " created");
+        Log.d(DatabaseAdapter.DEBUG_TAG_DB, "Table " + DatabaseAdapter.DB_TABLE_ALBUM + " ver." + DatabaseAdapter.DB_VERSION + " created");
+        Log.d(DatabaseAdapter.DEBUG_TAG_DB, "Table " + DatabaseAdapter.DB_TABLE_ZDJECIA + " ver." + DatabaseAdapter.DB_VERSION + " created");
     }
 
     //służy do aktualizacji bazy danych, jeśli okaże się ze na urządzeniu istnieje starsza wersja(na podstawie DB_VERSION)- aktualizuje jej struktury
@@ -49,6 +53,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Log.d(DatabaseAdapter.DEBUG_TAG_DB, "Table " + DatabaseAdapter.DB_TABLE_MAIN + " updated from ver." + oldVersion + " to ver." + newVersion);
         Log.d(DatabaseAdapter.DEBUG_TAG_DB, "Table " + DatabaseAdapter.DB_TABLE_TRASA + " updated from ver." + oldVersion + " to ver." + newVersion);
         Log.d(DatabaseAdapter.DEBUG_TAG_DB, "Table " + DatabaseAdapter.DB_TABLE_WSPOLRZEDNE + " updated from ver." + oldVersion + " to ver." + newVersion);
+        Log.d(DatabaseAdapter.DEBUG_TAG_DB, "Table " + DatabaseAdapter.DB_TABLE_ALBUM + " updated from ver." + oldVersion + " to ver." + newVersion);
+        Log.d(DatabaseAdapter.DEBUG_TAG_DB, "Table " + DatabaseAdapter.DB_TABLE_ZDJECIA + " updated from ver." + oldVersion + " to ver." + newVersion);
         Log.d(DatabaseAdapter.DEBUG_TAG_DB, "All data is lost.");
 
         onCreate(db);
@@ -90,18 +96,50 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 cursor.moveToNext();
             }
         }
+        cursor = db.rawQuery(DatabaseAdapter.SELECT_TABLE_ZDJECIA, null);
+        if (cursor.moveToFirst()) {
+            while (cursor.isAfterLast() == false) {
+                String string1 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ZDJECIA_ID));
+                String string2 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ZDJECIA_NAZWA));
+                String string3 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ZDJECIA_ID_TRASA));
+                String string4 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ZDJECIA_ID_ALBUM));
+                Log.d(DatabaseAdapter.DEBUG_TAG_DB, string1 + "," + string2 + "," + string3 + "," + string4); // Only assign string value if we moved to first record
+                cursor.moveToNext();
+            }
+        }
 
     }
 
     public String[] dostanieWszystkichKolumnTabeliPodroze(SQLiteDatabase db) {
-        String[] columns = {DatabaseAdapter.KEY_ID, DatabaseAdapter.KEY_TITLE, DatabaseAdapter.KEY_COUNTRY, DatabaseAdapter.KEY_CITY, DatabaseAdapter.KEY_DATE_START, DatabaseAdapter.KEY_COMMENT};
+        String[] columns = {DatabaseAdapter.KEY_ID, DatabaseAdapter.KEY_TITLE, DatabaseAdapter.KEY_COUNTRY, DatabaseAdapter.KEY_CITY, DatabaseAdapter.KEY_DATE_START, DatabaseAdapter.KEY_DATE_END, DatabaseAdapter.KEY_COMMENT};
         cursor = db.query(DatabaseAdapter.DB_TABLE_MAIN, columns, null, null, null, null, null);
         int iloscKrotekPodroze = cursor.getCount();
         String[] krotki = new String[iloscKrotekPodroze];
         if (cursor.moveToFirst()) {
             int i = 0;
             while (cursor.isAfterLast() == false) {
-                krotki[i] = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ID)) + "    " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_TITLE)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COUNTRY)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_CITY)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_START)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COMMENT));
+                krotki[i] = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ID)) + "    " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_TITLE)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COUNTRY)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_CITY)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_START))+ "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_END)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COMMENT));
+                cursor.moveToNext();
+                i++;
+            }
+        }
+        return krotki;
+    }
+    public String[][] dostanieWszystkichKolumnTabeliPodrozeDoTablicyDwuwymiarowej(SQLiteDatabase db) {
+        String[] columns = {DatabaseAdapter.KEY_ID, DatabaseAdapter.KEY_TITLE, DatabaseAdapter.KEY_COUNTRY, DatabaseAdapter.KEY_CITY, DatabaseAdapter.KEY_DATE_START, DatabaseAdapter.KEY_DATE_END, DatabaseAdapter.KEY_COMMENT};
+        cursor = db.query(DatabaseAdapter.DB_TABLE_MAIN, columns, null, null, null, null, null);
+        int iloscKrotekPodroze = cursor.getCount();
+        String[][] krotki = new String[iloscKrotekPodroze][7];
+        if (cursor.moveToFirst()) {
+            int i = 0;
+            while (cursor.isAfterLast() == false) {
+                krotki[i][0] = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ID));
+                krotki[i][1] = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_TITLE));
+                krotki[i][2] = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COUNTRY));
+                krotki[i][3] = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_CITY));
+                krotki[i][4] = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_START));
+                krotki[i][5] = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_END));
+                krotki[i][6] = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COMMENT));
                 cursor.moveToNext();
                 i++;
             }

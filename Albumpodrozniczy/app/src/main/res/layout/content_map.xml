@@ -32,13 +32,18 @@
     <android.support.design.widget.FloatingActionButton android:id="@+id/camera"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end" android:layout_margin="@dimen/fab_margin"
         android:layout_marginBottom="10dp"
         android:layout_marginRight="10dp"
         android:clickable="true"
+        android:scaleX="1.1"
+        android:scaleY="1.1"
         android:src="@drawable/camera"
         android:layout_above="@id/layoutBelowMap"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true" />
+
+
 
     <ImageView android:id="@+id/picture"
         android:layout_height="wrap_content"

@@ -90,7 +90,40 @@ public class DatabaseAdapter {
     public static final int WSPOLRZEDNE_ID_TRASA_COLUMN = 3;
 
 
+    //dane do trzeciej tabeli ALBUM:
+    public static final String KEY_ALBUM_ID = "_id";
+    public static final String ALBUM_ID_OPTIONS = "INTEGER PRIMARY KEY AUTOINCREMENT";
+    public static final int ALBUM_ID_COLUMN = 0;
 
+    public static final String KEY_ALBUM_NAZWA = "title";
+    public static final String ALBUM_NAZWA_OPTIONS = "TEXT NULL";
+    public static final int ALBUM_NAZWA_COLUMN = 1;
+
+    public static final String KEY_ALBUM_ID_PODROZE = "idpodroze";
+    public static final String ALBUM_ID_PODROZE_OPTIONS = "INTEGER NULL";
+    public static final int ALBUM_ID_PODROZE_COLUMN = 2;
+
+    public static final String KEY_ALBUM_ID_WSPOLRZEDNE = "idwspolrzedne";
+    public static final String ALBUM_ID_WSPOLRZEDNE_OPTIONS = "INTEGER NULL";
+    public static final int ALBUM_ID_WSPOLRZEDNE_COLUMN = 3;
+
+
+    //dane do trzeciej tabeli ZDJECIA:
+    public static final String KEY_ZDJECIA_ID = "_id";
+    public static final String ZDJECIA_ID_OPTIONS = "INTEGER PRIMARY KEY AUTOINCREMENT";
+    public static final int ZDJECIA_ID_COLUMN = 0;
+
+    public static final String KEY_ZDJECIA_NAZWA = "title";
+    public static final String ZDJECIA_NAZWA_OPTIONS = "TEXT NULL";
+    public static final int ZDJECIA_NAZWA_COLUMN = 1;
+
+    public static final String KEY_ZDJECIA_ID_TRASA = "idtrasa";
+    public static final String ZDJECIA_ID_TRASA_OPTIONS = "INTEGER NULL";
+    public static final int ZDJECIA_ID_TRASA_COLUMN = 2;
+
+    public static final String KEY_ZDJECIA_ID_ALBUM = "idalbum";
+    public static final String ZDJECIA_ID_ALBUM_OPTIONS = "INTEGER NULL";
+    public static final int ZDJECIA_ID_ALBUM_COLUMN = 3;
 
 
     //stała do tworzenia pierwszej tabeli
@@ -148,6 +181,39 @@ public class DatabaseAdapter {
     public static final String SELECT_TABLE_WSPOLRZEDNE =
             "SELECT * FROM " + DB_TABLE_WSPOLRZEDNE;
 
+
+    //stała do tworzenia czwartej tabeli ALBUM:
+    public static final String DB_CREATE_TABLE_ALBUM =
+            "CREATE TABLE " + DB_TABLE_ALBUM + "( " +
+                    KEY_ALBUM_ID + " " + ALBUM_ID_OPTIONS + ", " +
+                    KEY_ALBUM_NAZWA + " " + ALBUM_NAZWA_OPTIONS + ", " +
+                    KEY_ALBUM_ID_PODROZE + " " + ALBUM_ID_PODROZE_OPTIONS + ", " +
+                    KEY_ALBUM_ID_WSPOLRZEDNE + " " + ALBUM_ID_WSPOLRZEDNE_OPTIONS +
+                    ");";
+
+    //stało do usuwania czwartej tabeli
+    public static final String DROP_TABLE_ALBUM =
+            "DROP TABLE IF EXISTS " + DB_TABLE_ALBUM;
+
+    public static final String SELECT_TABLE_ALBUM =
+            "SELECT * FROM " + DB_TABLE_ALBUM;
+
+
+    //stała do tworzenia piatej tabeli ZDJECIA:
+    public static final String DB_CREATE_TABLE_ZDJECIA =
+            "CREATE TABLE " + DB_TABLE_ZDJECIA + "( " +
+                    KEY_ZDJECIA_ID + " " + ZDJECIA_ID_OPTIONS + ", " +
+                    KEY_ZDJECIA_NAZWA + " " + ZDJECIA_NAZWA_OPTIONS + ", " +
+                    KEY_ZDJECIA_ID_TRASA + " " + ZDJECIA_ID_TRASA_OPTIONS + ", " +
+                    KEY_ZDJECIA_ID_ALBUM + " " + ZDJECIA_ID_ALBUM_OPTIONS +
+                    ");";
+
+    //stało do usuwania piatej tabeli
+    public static final String DROP_TABLE_ZDJECIA =
+            "DROP TABLE IF EXISTS " + DB_TABLE_ZDJECIA;
+
+    public static final String SELECT_TABLE_ZDJECIA =
+            "SELECT * FROM " + DB_TABLE_ZDJECIA;
 
     //pola niezbędne do funkcjonowania klasy DatabaseHelper
     private SQLiteDatabase database;
@@ -208,9 +274,23 @@ public class DatabaseAdapter {
         return database.insert(DB_TABLE_WSPOLRZEDNE, null, nowaKrotka);
     }
 
+    //dodanie nowej krotki do tabeli wspolrzedne
+    public long wstawKrotkeDoTabeliZdjecia(String nazwa, Integer IDtrasa, Integer IDalbum) {
+        ContentValues nowaKrotka = new ContentValues();    //stworzenie obiektu do przekazania danych do zapytania
+        nowaKrotka.put(KEY_ZDJECIA_NAZWA, nazwa);
+        nowaKrotka.put(KEY_ZDJECIA_ID_TRASA, IDtrasa);
+        nowaKrotka.put(KEY_ZDJECIA_ID_ALBUM, IDalbum);
+        return database.insert(DB_TABLE_ZDJECIA, null, nowaKrotka);
+    }
+
 
     public String[] wypisanieWszystkichKolumnTabeliPodroze() {
         String[] krotki = dbHelper.dostanieWszystkichKolumnTabeliPodroze(database);
+        return krotki;
+    }
+
+    public String[][] wypisanieWszystkichKolumnDoTablicyDwuwymiarowejPodroze() {
+        String[][] krotki = dbHelper.dostanieWszystkichKolumnTabeliPodrozeDoTablicyDwuwymiarowej(database);
         return krotki;
     }
 
