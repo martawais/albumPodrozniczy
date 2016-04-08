@@ -36,8 +36,7 @@ public class ListViewAdapter extends ArrayAdapter<String> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.adapter_listview, parent, false);
         TextView nazwaP = (TextView) rowView.findViewById(R.id.nazwaPodrozy);
         TextView krajP = (TextView) rowView.findViewById(R.id.kraj);

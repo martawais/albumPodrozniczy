@@ -33,7 +33,7 @@ public class OneFragment extends Fragment {
     private LatLng latLng;
 
 
-    MapView mMapView;
+    private MapView mMapView;
     private GoogleMap googleMap;
 
     public OneFragment() {

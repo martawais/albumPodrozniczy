@@ -307,6 +307,12 @@ public class DatabaseAdapter {
         return tablica;
     }
 
+    public String[] pobranieTablicyWszystkichZdjecDoTrasy(Integer trasa) {
+        String[] zdjecia;
+        zdjecia = dbHelper.findAllPhotos(database,trasa);
+        return zdjecia;
+    }
+
     public double[] pobranieTablicyWszystkichWspolrzedne(Integer numerTrasy, String geo) {
         double[] tablica;
         tablica = dbHelper.findAllCoordinates(database, numerTrasy, geo);

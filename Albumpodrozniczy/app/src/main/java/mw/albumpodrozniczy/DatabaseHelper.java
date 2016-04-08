@@ -195,6 +195,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return tablicaRoutes;
     }
 
+    public String[] findAllPhotos(SQLiteDatabase db, Integer trasa) {
+        String[] columns = {DatabaseAdapter.KEY_ZDJECIA_NAZWA};
+        String where = DatabaseAdapter.KEY_ZDJECIA_ID_TRASA + "=" + trasa;
+        cursor=db.query("zdjecia",columns,where,null,null,null,null,null);
+        int i = 0;
+        String[] tablicaZdjec = new String[cursor.getCount()];
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            tablicaZdjec[i] = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ZDJECIA_NAZWA));
+            Log.d(DatabaseAdapter.DEBUG_TAG_DB, "" + tablicaZdjec[i]);
+            i++;
+            cursor.moveToNext();
+        }
+        return tablicaZdjec;
+    }
+
 
     public double[] findAllCoordinates(SQLiteDatabase db, Integer numerTrasy, String geograficzna) {
 
