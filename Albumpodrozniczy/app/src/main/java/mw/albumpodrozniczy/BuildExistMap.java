@@ -18,7 +18,7 @@ public class BuildExistMap extends AppCompatActivity {
 
     public final static String EDYCJA = "edycja";
     public final static String POZYCJA_PODROZY = "pozycjaPodrozy";
-    public final static String NAZWA_PODROZY = "nazwaPodrozy";
+
 
     private Toolbar toolbar;
     private TabLayout tabLayout;
@@ -61,6 +61,8 @@ public class BuildExistMap extends AppCompatActivity {
 
 
     }
+
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -80,7 +82,7 @@ public class BuildExistMap extends AppCompatActivity {
 
         Bundle bundle = new Bundle();
         bundle.putInt(POZYCJA_PODROZY, pozycja);
-        bundle.putString(NAZWA_PODROZY, nazwa_podrozy);
+
         OneFragment oneFragment = new OneFragment();
         TwoFragment twoFragment = new TwoFragment();
         oneFragment.setArguments(bundle);

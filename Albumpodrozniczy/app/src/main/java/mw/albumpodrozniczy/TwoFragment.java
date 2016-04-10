@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
-import android.widget.Toast;
 
 import java.io.File;
 
@@ -24,10 +23,12 @@ public class TwoFragment extends Fragment {
     private Context context;
     private GridView grid;
     private GridViewAdapter adapter;
+    private View view;
 
     private String[] FilePathStrings;
     private String[] FileNameStrings;
     private File[] listFile;
+    private File file;
 
 
     public TwoFragment() {
@@ -42,15 +43,22 @@ public class TwoFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_two, container, false);
+        view = inflater.inflate(R.layout.fragment_two, container, false);
         context = container.getContext();
         pozycja = getArguments().getInt(BuildExistMap.POZYCJA_PODROZY);
-        nazwaPodrozy = getArguments().getString(BuildExistMap.NAZWA_PODROZY);
 
+        return view;
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        //your code which you want to refresh
         databaseAdapter = new DatabaseAdapter(context);
         databaseAdapter.open();
 
-        int[] trasy = databaseAdapter.pobranieTablicyWszystkichTras(pozycja++);
+        int pozycja1 = pozycja;
+
+        int[] trasy = databaseAdapter.pobranieTablicyWszystkichTras(pozycja1);
         String[][] tablicWszystkichZdjec = new String[trasy.length][];
         String[][] tablicWszystkichSciezekDoZdjec = new String[trasy.length][];
 
@@ -58,11 +66,12 @@ public class TwoFragment extends Fragment {
             String[] tablica = databaseAdapter.pobranieTablicyWszystkichZdjecDoTrasy(trasy[i]);
             tablicWszystkichZdjec[i] = tablica;
             if(tablica.length!=0) {
-                Toast.makeText(context, "aa" + tablica[0], Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, "aa" + tablica[0], Toast.LENGTH_SHORT).show();
             }
         }
 
-        File file = new File(Environment.getExternalStorageDirectory()+ File.separator + "Album podróżniczy" + File.separator+ nazwaPodrozy);
+        nazwaPodrozy = databaseAdapter.pobranieWartosciZTabeli(databaseAdapter.DB_TABLE_MAIN, DatabaseAdapter.KEY_TITLE, (int) pozycja);
+        file = new File(Environment.getExternalStorageDirectory()+ File.separator + "Album podróżniczy" + File.separator+ nazwaPodrozy);
 
 
 
@@ -83,9 +92,9 @@ public class TwoFragment extends Fragment {
         grid = (GridView) view.findViewById(R.id.gridView);
         adapter = new GridViewAdapter(context, FilePathStrings, FileNameStrings);
         grid.setAdapter(adapter);
-
-        return view;
+        databaseAdapter.close();
     }
+
 
 
 }

@@ -220,27 +220,26 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
         buttonCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(context,"kkkkkk:"+ Environment.getExternalStorageState().toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "kkkkkk:" + Environment.getExternalStorageState().toString(), Toast.LENGTH_SHORT).show();
                 int iloscModulowCamera = Camera.getNumberOfCameras();
                 PackageManager packageManager = context.getPackageManager();
                 boolean urzadzeniaPosiadaModulCamera = packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA);
 
-                if( iloscModulowCamera==0 || !urzadzeniaPosiadaModulCamera ) {
+                if (iloscModulowCamera == 0 || !urzadzeniaPosiadaModulCamera) {
                     Toast.makeText(context, "Urzedzenie nie posiada modułu 'Camera'", Toast.LENGTH_SHORT).show();
-                }
-                else {
+                } else {
                     nazwa_folderu = null;
                     timeStamp = null;
-                    if(trybEdycja==true) {
+                    if (trybEdycja == true) {
                         nazwa_folderu = "Album podróżniczy/" + databaseAdapter.pobranieWartosciZTabeli(databaseAdapter.DB_TABLE_MAIN, DatabaseAdapter.KEY_TITLE, (int) numerObecnejPodrozy);
-                        timeStamp = new SimpleDateFormat(tablicaWszystkichTras[tablicaWszystkichTras.length-1] + "_yyyyMMdd_HHmmss").format(new Date());
-                        databaseAdapter.wstawKrotkeDoTabeliZdjecia(timeStamp, tablicaWszystkichTras[tablicaWszystkichTras.length-1], null);
+                        timeStamp = new SimpleDateFormat(tablicaWszystkichTras[tablicaWszystkichTras.length - 1] + "_yyyyMMdd_HHmmss").format(new Date());
+                        databaseAdapter.wstawKrotkeDoTabeliZdjecia(timeStamp, tablicaWszystkichTras[tablicaWszystkichTras.length - 1], null);
                     } else {
                         nazwa_folderu = "Album podróżniczy/" + databaseAdapter.pobranieWartosciZTabeli(databaseAdapter.DB_TABLE_MAIN, DatabaseAdapter.KEY_TITLE, (int) numerObecnejPodrozy - 1);
                         timeStamp = new SimpleDateFormat(numerObecnejTrasy + "_yyyyMMdd_HHmmss").format(new Date());
                         databaseAdapter.wstawKrotkeDoTabeliZdjecia(timeStamp, (int) numerObecnejTrasy, null);
                     }
-                    Intent intentZdjecie = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE );
+                    Intent intentZdjecie = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
 
 
                     File imagesFolder = new File(Environment.getExternalStorageDirectory(), nazwa_folderu);
@@ -269,27 +268,48 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     if (komentarz_tytul == 1) {
                         if (trybEdycja == true) {
-                            databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy + 1, DatabaseAdapter.KEY_TITLE, editComment.getText().toString());
-                        } else {
-                            databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy, DatabaseAdapter.KEY_TITLE, editComment.getText().toString());
-                        }
-                        toolbar.setTitle(" " + editComment.getText().toString());
-                        editComment.setText("");
-                        editComment.setVisibility(View.INVISIBLE);
-                    } else if (komentarz_tytul == 0) {
-                        if (trybEdycja == true) {
-                            databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy + 1, DatabaseAdapter.KEY_COMMENT, editComment.getText().toString());
-                        } else {
-                            databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy, DatabaseAdapter.KEY_COMMENT, editComment.getText().toString());
-                        }
-                        editComment.setText("");
-                        editComment.setVisibility(View.INVISIBLE);
-                    }
-                }
 
-                return false;
+
+                            /*nazwa_folderu = "Album podróżniczy/" + databaseAdapter.pobranieWartosciZTabeli(databaseAdapter.DB_TABLE_MAIN, DatabaseAdapter.KEY_TITLE, (int) numerObecnejPodrozy - 1);
+                            timeStamp = new SimpleDateFormat(numerObecnejTrasy + "_yyyyMMdd_HHmmss").format(new Date());
+                            databaseAdapter.wstawKrotkeDoTabeliZdjecia(timeStamp, (int) numerObecnejTrasy, null);
+                        }
+                        Intent intentZdjecie = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+
+
+                        File imagesFolder = new File(Environment.getExternalStorageDirectory(), nazwa_folderu);*/
+                        String nazwa_starego_folderu = "Album podróżniczy/" + databaseAdapter.pobranieWartosciZTabeli(databaseAdapter.DB_TABLE_MAIN, DatabaseAdapter.KEY_TITLE, (int) numerObecnejPodrozy);
+                        File starszyFile = new File(Environment.getExternalStorageDirectory(), nazwa_starego_folderu);
+                        String nowa_nazwa = editComment.getText().toString();
+                        File nowyFile = new File(starszyFile.getParent(),nowa_nazwa);
+                        starszyFile.renameTo(nowyFile);
+                        /*    File file = new File(databaseAdapter.pobranieWartosciZTabeli(databaseAdapter.DB_TABLE_MAIN, DatabaseAdapter.KEY_TITLE, (int) numerObecnejPodrozy));
+                        File file2 = new File(editComment.getText().toString());
+                        file.renameTo(file2);*/
+                        databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy + 1, DatabaseAdapter.KEY_TITLE, editComment.getText().toString());
+
+
+
+                        } else {
+                        databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy, DatabaseAdapter.KEY_TITLE, editComment.getText().toString());
+                    }
+                    toolbar.setTitle(" " + editComment.getText().toString());
+                    editComment.setText("");
+                    editComment.setVisibility(View.INVISIBLE);
+                } else if (komentarz_tytul == 0) {
+                    if (trybEdycja == true) {
+                        databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy + 1, DatabaseAdapter.KEY_COMMENT, editComment.getText().toString());
+                    } else {
+                        databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy, DatabaseAdapter.KEY_COMMENT, editComment.getText().toString());
+                    }
+                    editComment.setText("");
+                    editComment.setVisibility(View.INVISIBLE);
+                }
             }
-        });
+
+            return false;
+        }
+    });
 
         raportSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

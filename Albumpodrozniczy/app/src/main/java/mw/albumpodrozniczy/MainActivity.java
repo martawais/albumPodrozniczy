@@ -1,10 +1,12 @@
 package mw.albumpodrozniczy;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -37,6 +39,15 @@ public class MainActivity extends AppCompatActivity {
     private boolean locationAccepted;
     private boolean writeExternalStorageAccepted;
     private boolean readExternalStorageAccepted;
+    private  int  positionInt;
+
+
+    private ProgressDialog progressBar;
+    private int progressBarStatus = 0;
+    private Handler progressBarbHandler = new Handler();
+    private long fileSize = 1000000;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,9 +87,22 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                if (cameraAccepted && locationAccepted && writeExternalStorageAccepted && readExternalStorageAccepted) {
+                    intent = new Intent(MainActivity.this, BuildExistMap.class);
+                    intent.putExtra(POZYCJA, position);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(context, "Aplikacja potrzebuje przyznania uprawnień", Toast.LENGTH_SHORT).show();
+                    requestPermissions(permission, permissionRequestCode);
+                }
+            }
+        });
     }
-
-
 
 
 
@@ -99,24 +123,12 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         aktualizacjaKrotekZTabeliPodroze();
         inicjalizacjaListView();
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                if (cameraAccepted && locationAccepted && writeExternalStorageAccepted && readExternalStorageAccepted) {
-                    intent = new Intent(MainActivity.this, BuildExistMap.class);
-                    intent.putExtra(POZYCJA, position);
-                    startActivity(intent);
-                } else {
-                    Toast.makeText(context, "Aplikacja potrzebuje przyznania uprawnień", Toast.LENGTH_SHORT).show();
-                    requestPermissions(permission, permissionRequestCode);
-                }
-            }
-        });
-
-
     }
+
+
+
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

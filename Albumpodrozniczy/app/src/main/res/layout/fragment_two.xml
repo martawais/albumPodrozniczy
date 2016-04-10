@@ -9,9 +9,10 @@
         android:id="@+id/gridView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:columnWidth="250dp"
+        android:columnWidth="200dp"
         android:numColumns="auto_fit"
-        android:stretchMode="columnWidth" />
+
+        android:stretchMode="spacingWidthUniform" />
 
 
 </RelativeLayout>
