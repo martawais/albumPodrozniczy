@@ -63,6 +63,10 @@ public class DatabaseAdapter {
     public static final String COMMENT_OPTIONS = "TEXT NULL";
     public static final int COMMENT_COLUMN = 6;
 
+    public static final String KEY_IMAGE = "image";
+    public static final String IMAGE_OPTIONS = "TEXT NULL";
+    public static final int IMAGE_COLUMN = 7;
+
     //dane do drugiej tabeli TRASA:
     public static final String KEY_TRASA_ID = "_id";
     public static final String ID_TRASA_OPTIONS = "INTEGER PRIMARY KEY AUTOINCREMENT";
@@ -135,7 +139,8 @@ public class DatabaseAdapter {
                     KEY_CITY + " " + CITY_OPTIONS + ", " +
                     KEY_DATE_START + " " + DATE_START_OPTIONS + ", " +
                     KEY_DATE_END + " " + DATE_END_OPTIONS + ", " +
-                    KEY_COMMENT + " " + COMMENT_OPTIONS +
+                    KEY_COMMENT + " " + COMMENT_OPTIONS + ", " +
+                    KEY_IMAGE + " " + IMAGE_OPTIONS +
                     ");";
     //stało do usuwania pierwszej tabeli
     public static final String DROP_TABLE_MAIN =
@@ -253,6 +258,7 @@ public class DatabaseAdapter {
         nowaKrotka.putNull(KEY_DATE_START);
         nowaKrotka.putNull(KEY_DATE_END);
         nowaKrotka.putNull(KEY_COMMENT);
+        nowaKrotka.putNull(KEY_IMAGE);
         return database.insert(DB_TABLE_MAIN, null, nowaKrotka);
     }
 

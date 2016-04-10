@@ -72,7 +72,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String string5 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_START));
                 String string6 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_END));
                 String string7 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COMMENT));
-                Log.d(DatabaseAdapter.DEBUG_TAG_DB, string1 + "," + string2 + "," + string3 + "," + string4 + "," + string5 + "," + string6 + "," + string7); // Only assign string value if we moved to first record
+                String string8 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_IMAGE));
+                Log.d(DatabaseAdapter.DEBUG_TAG_DB, string1 + "," + string2 + "," + string3 + "," + string4 + "," + string5 + "," + string6 + "," + string7+ "," + string8); // Only assign string value if we moved to first record
                 cursor.moveToNext();
             }
         }
@@ -111,14 +112,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public String[] dostanieWszystkichKolumnTabeliPodroze(SQLiteDatabase db) {
-        String[] columns = {DatabaseAdapter.KEY_ID, DatabaseAdapter.KEY_TITLE, DatabaseAdapter.KEY_COUNTRY, DatabaseAdapter.KEY_CITY, DatabaseAdapter.KEY_DATE_START, DatabaseAdapter.KEY_DATE_END, DatabaseAdapter.KEY_COMMENT};
+        String[] columns = {DatabaseAdapter.KEY_ID, DatabaseAdapter.KEY_TITLE, DatabaseAdapter.KEY_COUNTRY, DatabaseAdapter.KEY_CITY, DatabaseAdapter.KEY_DATE_START, DatabaseAdapter.KEY_DATE_END, DatabaseAdapter.KEY_COMMENT, DatabaseAdapter.KEY_IMAGE};
         cursor = db.query(DatabaseAdapter.DB_TABLE_MAIN, columns, null, null, null, null, null);
         int iloscKrotekPodroze = cursor.getCount();
         String[] krotki = new String[iloscKrotekPodroze];
         if (cursor.moveToFirst()) {
             int i = 0;
             while (cursor.isAfterLast() == false) {
-                krotki[i] = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ID)) + "    " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_TITLE)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COUNTRY)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_CITY)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_START))+ "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_END)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COMMENT));
+                krotki[i] = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ID)) + "    " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_TITLE)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COUNTRY)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_CITY)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_START))+ "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_END)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COMMENT)) + "  " + cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_IMAGE));
                 cursor.moveToNext();
                 i++;
             }
@@ -126,10 +127,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return krotki;
     }
     public String[][] dostanieWszystkichKolumnTabeliPodrozeDoTablicyDwuwymiarowej(SQLiteDatabase db) {
-        String[] columns = {DatabaseAdapter.KEY_ID, DatabaseAdapter.KEY_TITLE, DatabaseAdapter.KEY_COUNTRY, DatabaseAdapter.KEY_CITY, DatabaseAdapter.KEY_DATE_START, DatabaseAdapter.KEY_DATE_END, DatabaseAdapter.KEY_COMMENT};
+        String[] columns = {DatabaseAdapter.KEY_ID, DatabaseAdapter.KEY_TITLE, DatabaseAdapter.KEY_COUNTRY, DatabaseAdapter.KEY_CITY, DatabaseAdapter.KEY_DATE_START, DatabaseAdapter.KEY_DATE_END, DatabaseAdapter.KEY_COMMENT, DatabaseAdapter.KEY_IMAGE};
         cursor = db.query(DatabaseAdapter.DB_TABLE_MAIN, columns, null, null, null, null, null);
         int iloscKrotekPodroze = cursor.getCount();
-        String[][] krotki = new String[iloscKrotekPodroze][7];
+        String[][] krotki = new String[iloscKrotekPodroze][8];
         if (cursor.moveToFirst()) {
             int i = 0;
             while (cursor.isAfterLast() == false) {
@@ -140,6 +141,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 krotki[i][4] = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_START));
                 krotki[i][5] = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_DATE_END));
                 krotki[i][6] = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_COMMENT));
+                krotki[i][7] = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_IMAGE));
                 cursor.moveToNext();
                 i++;
             }
@@ -166,6 +168,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(DatabaseAdapter.DROP_TABLE_MAIN);
         db.execSQL(DatabaseAdapter.DROP_TABLE_TRASA);
         db.execSQL(DatabaseAdapter.DROP_TABLE_WSPOLRZEDNE);
+        db.execSQL(DatabaseAdapter.DROP_TABLE_ALBUM);
+        db.execSQL(DatabaseAdapter.DROP_TABLE_ZDJECIA);
         Log.d(DatabaseAdapter.DEBUG_TAG_DB, "Tabele usunieta");
     }
 

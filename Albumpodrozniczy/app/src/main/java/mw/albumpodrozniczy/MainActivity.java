@@ -145,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_usun) {
+            //databaseAdapter = new DatabaseAdapter(getApplicationContext());
             databaseAdapter.open();
             Toast.makeText(this, "Czyszczenie bazy danych", Toast.LENGTH_SHORT).show();
             databaseAdapter.usuwanieBazyDanych();
@@ -168,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
         String[] dataP = new String[krotki.length];
         String[] dataK = new String[krotki.length];
         String[] komentarz = new String[krotki.length];
+        String[] zdjecie = new String[krotki.length];
 
         for(int j=0; j<krotki.length; j++) {
             id[j] = krotkiDwuwymiarowe[j][0];
@@ -177,9 +179,11 @@ public class MainActivity extends AppCompatActivity {
             dataP[j] = krotkiDwuwymiarowe[j][4];
             dataK[j] = krotkiDwuwymiarowe[j][5];
             komentarz[j] = krotkiDwuwymiarowe[j][6];
+            zdjecie[j] = krotkiDwuwymiarowe[j][7];
 
         }
-        ListViewAdapter adapter = adapter = new ListViewAdapter(this, id, nazwa, kraj, miasto, dataP, dataK, komentarz );
+        ListViewAdapter adapter = adapter = new ListViewAdapter(this, id, nazwa, kraj, miasto, dataP, dataK, komentarz, zdjecie );
+
         listView.setAdapter(adapter);
     }
 

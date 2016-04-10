@@ -59,7 +59,7 @@ public class GridViewAdapter extends BaseAdapter {
         if(image.getTag() != null) {
             ((ImageGetter) image.getTag()).cancel(true);
         }
-        image.setImageBitmap(null);
+       // image.setImageBitmap(null);
         ImageGetter task = new ImageGetter(image) ;
         task.execute(filepath[position]);
 
@@ -117,7 +117,8 @@ public class GridViewAdapter extends BaseAdapter {
             }
 
 //Bitmap.createScaledBitmap(bmp, 500, 500, false)
-            return Bitmap.createScaledBitmap(bmp,  imageHeight, imageWidth, false);
+            //return Bitmap.createScaledBitmap(bmp,  imageHeight, imageWidth, false);
+            return Bitmap.createScaledBitmap(bmp,  500, 500, false);
         }
 
         @Override
