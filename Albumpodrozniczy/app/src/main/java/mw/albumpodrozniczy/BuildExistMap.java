@@ -51,7 +51,7 @@ public class BuildExistMap extends AppCompatActivity {
         toolbar.setTitle(nazwa_podrozy);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
@@ -62,8 +62,22 @@ public class BuildExistMap extends AppCompatActivity {
 
     }
 
+    /*@Override
+    public void onBackPressed() {
+        if (viewPager.getCurrentItem() == 0) {
+            // If the user is currently looking at the first step, allow the system to handle the
+            // Back button. This calls finish() on this activity and pops the back stack.
 
-    @Override
+            super.onBackPressed();
+            finish();
+        } else {
+            // Otherwise, select the previous step.
+            viewPager.setCurrentItem(viewPager.getCurrentItem() - 1);
+        }
+    }*/
+
+
+        @Override
     protected void onResume() {
         super.onResume();
         databaseAdapter = new DatabaseAdapter(getApplicationContext());
