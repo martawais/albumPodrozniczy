@@ -1,12 +1,14 @@
 package mw.albumpodrozniczy;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
 import java.io.File;
@@ -38,7 +40,10 @@ public class TwoFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -93,6 +98,20 @@ public class TwoFragment extends Fragment {
         adapter = new GridViewAdapter(context, FilePathStrings, FileNameStrings);
         grid.setAdapter(adapter);
         databaseAdapter.close();
+
+
+        grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View v, int position, long arg3) {
+                //Toast.makeText(context.getApplicationContext(), position + "", Toast.LENGTH_SHORT).show();
+                Intent intentDisplayImage = new Intent(getActivity(), DisplayImage.class);
+                intentDisplayImage.putExtra("sciezka", FilePathStrings);
+                intentDisplayImage.putExtra("obecneZdjecie", position);
+                intentDisplayImage.putExtra("nazwaPodrozy", nazwaPodrozy);
+                startActivity(intentDisplayImage);
+            }
+        });
     }
 
 

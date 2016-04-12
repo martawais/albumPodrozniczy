@@ -174,10 +174,12 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
                 }
             }
             if(latLng==null) {
-                latLng = new LatLng(51, 16);;
+                latLng = new LatLng(51, 16);
+
             }
             layoutBelowMap.setVisibility(View.INVISIBLE);
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+
             currentZoom = 16;
 
 
@@ -220,7 +222,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
         buttonCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(context, "kkkkkk:" + Environment.getExternalStorageState().toString(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, "kkkkkk:" + Environment.getExternalStorageState().toString(), Toast.LENGTH_SHORT).show();
                 int iloscModulowCamera = Camera.getNumberOfCameras();
                 PackageManager packageManager = context.getPackageManager();
                 boolean urzadzeniaPosiadaModulCamera = packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA);

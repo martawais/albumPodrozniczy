@@ -34,7 +34,10 @@ public class OneFragment extends Fragment {
 
 
     private MapView mMapView;
-    private GoogleMap googleMap;
+    public GoogleMap googleMap;
+
+    public double ostatniaSzerokosc;
+    public double ostatniaDlugosc;
 
     public OneFragment() {
         // Required empty public constructor
@@ -91,6 +94,7 @@ public class OneFragment extends Fragment {
                 //Toast.makeText(context, tablica[i]-1 + "", Toast.LENGTH_SHORT).show();
                 double[] szerokosc = databaseAdapter.pobranieTablicyWszystkichWspolrzedne(tablica[i]-1, "szerokosc");
                 double[] dlugosc = databaseAdapter.pobranieTablicyWszystkichWspolrzedne(tablica[i]-1, "dlugosc");
+
                 Polyline line;
                 //Toast.makeText(context, szerokosc.length + "", Toast.LENGTH_SHORT).show();
                 if (szerokosc.length != 0) {
@@ -102,6 +106,10 @@ public class OneFragment extends Fragment {
                     }else {
                         googleMap.addCircle(new CircleOptions().center(new LatLng(szerokosc[0], dlugosc[0])).radius(0.3).strokeColor(Color.parseColor("#FF4081")).fillColor(Color.parseColor("#FF4081")));
                     }
+                }
+                if(i==(tablica.length-1)) {
+                    ostatniaSzerokosc = szerokosc[szerokosc.length-1];
+                    ostatniaDlugosc = dlugosc[szerokosc.length-1];
                 }
             }
         }

@@ -11,6 +11,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
+
 /**
  * Created by mstowska on 3/6/2016.
  */
@@ -27,8 +30,12 @@ public class BuildExistMap extends AppCompatActivity {
 
     private String nazwa_podrozy;
     public int pozycja;
+    public int[] tablicaTras;
 
     public boolean edycja = true;
+
+    private OneFragment oneFragment;
+    private TwoFragment twoFragment;
 
 
     private Map map;
@@ -83,7 +90,7 @@ public class BuildExistMap extends AppCompatActivity {
         databaseAdapter = new DatabaseAdapter(getApplicationContext());
         databaseAdapter.open();
         nazwa_podrozy = databaseAdapter.pobranieWartosciZTabeli(databaseAdapter.DB_TABLE_MAIN, DatabaseAdapter.KEY_TITLE, pozycja);
-        int[] tablica = databaseAdapter.pobranieTablicyWszystkichTras(pozycja);
+        tablicaTras = databaseAdapter.pobranieTablicyWszystkichTras(pozycja);
         databaseAdapter.close();
         toolbar.setTitle(nazwa_podrozy);
         setSupportActionBar(toolbar);
@@ -97,8 +104,8 @@ public class BuildExistMap extends AppCompatActivity {
         Bundle bundle = new Bundle();
         bundle.putInt(POZYCJA_PODROZY, pozycja);
 
-        OneFragment oneFragment = new OneFragment();
-        TwoFragment twoFragment = new TwoFragment();
+        oneFragment = new OneFragment();
+        twoFragment = new TwoFragment();
         oneFragment.setArguments(bundle);
         twoFragment.setArguments(bundle);
 
@@ -119,23 +126,24 @@ public class BuildExistMap extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             // action with ID action_refresh was selected
+            case R.id.action_znajdz_lokalizacje:
+                Toast.makeText(this, "Lokalizacja tras", Toast.LENGTH_SHORT).show();
+                LatLng lokalizacja = new LatLng(oneFragment.ostatniaSzerokosc, oneFragment.ostatniaDlugosc);
+                oneFragment.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lokalizacja, 16));
+                break;
             case R.id.action_edytuj_mape:
                 Toast.makeText(this, "Edytuj mape", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(BuildExistMap.this, Map.class);
                 intent.putExtra(EDYCJA, edycja);
                 intent.putExtra(POZYCJA_PODROZY,  pozycja);
                 startActivity(intent);
-
                 break;
             case R.id.action_załacz_zdjecie:
                 Toast.makeText(this, "Załącz zdjęcie", Toast.LENGTH_SHORT).show();
-
                 break;
-
             default:
                 break;
         }
-
         return true;
     }
 

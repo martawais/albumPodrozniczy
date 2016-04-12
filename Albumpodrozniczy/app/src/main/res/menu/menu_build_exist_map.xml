@@ -3,6 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context=".BuildExistMap">
 
     <item
+        android:id="@+id/action_znajdz_lokalizacje"
+        android:title="Edytuj"
+        android:orderInCategory="100"
+        android:icon="@drawable/find_location"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/action_edytuj_mape"
         android:title="Edytuj"
         android:orderInCategory="100"
