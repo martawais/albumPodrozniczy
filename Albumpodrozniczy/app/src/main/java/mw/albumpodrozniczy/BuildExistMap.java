@@ -1,7 +1,11 @@
 package mw.albumpodrozniczy;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -14,21 +18,31 @@ import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Created by mstowska on 3/6/2016.
  */
 public class BuildExistMap extends AppCompatActivity {
 
+
     public final static String EDYCJA = "edycja";
     public final static String POZYCJA_PODROZY = "pozycjaPodrozy";
 
+    private static int RESULT_LOAD_IMG = 1;
 
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private DatabaseAdapter databaseAdapter;
 
-    private String nazwa_podrozy;
+    public String nazwa_podrozy;
     public int pozycja;
     public int[] tablicaTras;
 
@@ -89,6 +103,7 @@ public class BuildExistMap extends AppCompatActivity {
         super.onResume();
         databaseAdapter = new DatabaseAdapter(getApplicationContext());
         databaseAdapter.open();
+
         nazwa_podrozy = databaseAdapter.pobranieWartosciZTabeli(databaseAdapter.DB_TABLE_MAIN, DatabaseAdapter.KEY_TITLE, pozycja);
         tablicaTras = databaseAdapter.pobranieTablicyWszystkichTras(pozycja);
         databaseAdapter.close();
@@ -140,6 +155,9 @@ public class BuildExistMap extends AppCompatActivity {
                 break;
             case R.id.action_załacz_zdjecie:
                 Toast.makeText(this, "Załącz zdjęcie", Toast.LENGTH_SHORT).show();
+                Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                // Start the Intent
+                startActivityForResult(galleryIntent, RESULT_LOAD_IMG);
                 break;
             default:
                 break;
@@ -148,5 +166,54 @@ public class BuildExistMap extends AppCompatActivity {
     }
 
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+            if (requestCode == RESULT_LOAD_IMG && resultCode == RESULT_OK) {
+                // Get the Image from data
+                Uri selectedImage = data.getData();
+                String[] filePathColumn = { MediaStore.Images.Media.DATA };
+                Cursor cursor = managedQuery(selectedImage, filePathColumn, null, null, null);
+                startManagingCursor(cursor);
+                int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                cursor.moveToFirst();
+                String zdjecie = cursor.getString(column_index);
+                String nazwaZdjecia = "zalaczone_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date())+".png";
+                File zdjecieFile = new File(zdjecie);
+                File sciezkaDoZdjecia = new File(Environment.getExternalStorageDirectory()+ File.separator + "Album podróżniczy" + File.separator+ nazwa_podrozy+File.separator+nazwaZdjecia);
+                zdjecieFile.renameTo(sciezkaDoZdjecia);
+            } else {
+                Toast.makeText(this, "You haven't picked Image",
+                        Toast.LENGTH_LONG).show();
+            }
+
+
+    }
+
+    private static void copyFileUsingFileChannels(File source, File dest)
+
+            throws IOException {
+
+        FileChannel inputChannel = null;
+
+        FileChannel outputChannel = null;
+
+        try {
+
+            inputChannel = new FileInputStream(source).getChannel();
+
+            outputChannel = new FileOutputStream(dest).getChannel();
+
+            outputChannel.transferFrom(inputChannel, 0, inputChannel.size());
+
+        } finally {
+
+            inputChannel.close();
+
+            outputChannel.close();
+
+        }
+
+    }
 
 }

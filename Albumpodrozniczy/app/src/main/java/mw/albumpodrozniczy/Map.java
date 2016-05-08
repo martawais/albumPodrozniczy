@@ -4,7 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.location.Address;
 import android.location.Geocoder;
@@ -13,12 +17,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.DrawableRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -26,6 +32,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -88,6 +95,8 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
     private Toolbar toolbar;
     private EditText editComment;
     private RelativeLayout layoutBelowMap;
+    private PackageManager packageManager;
+    private TextView markeryZeZdjeciami;
 
     private int komentarz_tytul; //komentarz 0, tytul 1;
 
@@ -114,6 +123,9 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
     private int iloscPodrozyZActivityMap;
 
 
+
+    private View mCustomMarkerView;
+    private ImageView mMarkerImageView;
 
 
 
@@ -224,7 +236,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
             public void onClick(View view) {
                 //Toast.makeText(context, "kkkkkk:" + Environment.getExternalStorageState().toString(), Toast.LENGTH_SHORT).show();
                 int iloscModulowCamera = Camera.getNumberOfCameras();
-                PackageManager packageManager = context.getPackageManager();
+                packageManager = context.getPackageManager();
                 boolean urzadzeniaPosiadaModulCamera = packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA);
 
                 if (iloscModulowCamera == 0 || !urzadzeniaPosiadaModulCamera) {
@@ -247,7 +259,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
                     File imagesFolder = new File(Environment.getExternalStorageDirectory(), nazwa_folderu);
                     imagesFolder.mkdirs();
 
-                    File image = new File(imagesFolder, timeStamp + ".png");
+                    File image = new File(imagesFolder, timeStamp + ".jpg");
                     Uri uriSavedImage = Uri.fromFile(image);
 
                     intentZdjecie.putExtra(MediaStore.EXTRA_OUTPUT, uriSavedImage);
@@ -261,6 +273,25 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
         });
 
 
+        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+
+            @Override
+            public boolean onMarkerClick(Marker arg0) {
+                markeryZeZdjeciami.setText("Raportowanie zdjęć do folderu " + arg0.getId());
+                arg0.showInfoWindow();
+                //Toast.makeText(context, "nacisnieto marker: " + arg0.getId(), Toast.LENGTH_SHORT).show();
+                return true;
+            }
+
+        });
+
+        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+
+            @Override
+            public void onMapClick(LatLng arg0) {
+                markeryZeZdjeciami.setText("");
+            }
+        });
 
 
         //nasłuchuje
@@ -334,7 +365,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
         super.onStart();
         if (!mResolvingError) {  // more about this later
             mGoogleApiClient.connect();
-        }
+    }
     }
 
     @Override
@@ -415,8 +446,8 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
                 counterRoutes = 1;
                 quantityRoute = 2;
                 currentZoom = 16;
-                markerOptions = new MarkerOptions().position(latLng);
-                marker = map.addMarker(markerOptions);
+                //markerOptions = new MarkerOptions().position(latLng);
+                //marker = map.addMarker(markerOptions);
                 layoutBelowMap.setVisibility(View.INVISIBLE);
                 previousLatLng = latLng;
                 recognizeLocation(latLng);
@@ -426,7 +457,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
             //kontynuujemy rysowanie- kolejny punkt na tej samej rasie
             else if (quantityRoute == 2) {
                 currentZoom = map.getCameraPosition().zoom;
-                marker.setPosition(latLng);
+                //marker.setPosition(latLng);
                 line = map.addPolyline(new PolylineOptions().add(previousLatLng, latLng).width(15).color(Color.parseColor("#FF4081")));
                 previousLatLng = latLng;
                 databaseAdapter.wstawKrotkeDoTabeliWspolrzedne(Double.toString(latLng.latitude), Double.toString(latLng.longitude), (int) numerObecnejTrasy);
@@ -436,7 +467,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
             else if (quantityRoute == 1) {
                 counterRoutes++;
                 currentZoom = map.getCameraPosition().zoom;
-                marker.setPosition(latLng);
+                //marker.setPosition(latLng);
                 previousLatLng = latLng;
                 numerObecnejTrasy = databaseAdapter.wstawKrotkeDoTabeliTrasa((int) numerObecnejPodrozy-1);
                 databaseAdapter.wstawKrotkeDoTabeliWspolrzedne(Double.toString(latLng.latitude), Double.toString(latLng.longitude), (int) numerObecnejTrasy);
@@ -473,12 +504,17 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
     }
 
     private void addFolder() {
-        markerOptionsFolder = new MarkerOptions().position(latLng).icon(iconFolder);
+        mCustomMarkerView = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.element_marker, null);
+        mMarkerImageView = (ImageView) mCustomMarkerView.findViewById(R.id.miniaturka_marker);
+
+        markerOptionsFolder = new MarkerOptions().alpha(70).draggable(true).position(latLng).icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmapFromView(mCustomMarkerView, R.drawable.pionowe))).title("Tutaj trafią zdjęcia");
         map.addMarker(markerOptionsFolder);
+
     }
 
 
     private void pobranieElementowWidoku() {
+        markeryZeZdjeciami = (TextView) findViewById(R.id.informacjaMarker);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
         buttonStart = (FloatingActionButton) findViewById(R.id.buttonStart);
@@ -489,8 +525,27 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
         layoutBelowMap = (RelativeLayout) findViewById(R.id.layoutBelowMap);
         raportSwitch.setEnabled(false);
         buttonCamera.setEnabled(false);
-        iconFolder = BitmapDescriptorFactory.fromResource(R.drawable.folder_image);
+        //iconFolder = BitmapDescriptorFactory.fromResource(R.drawable.pionowe);
 
+    }
+
+    private Bitmap getMarkerBitmapFromView(View view, @DrawableRes int resId) {
+
+        View customMarkerView = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.element_marker, null);
+        ImageView markerImageView = (ImageView) customMarkerView.findViewById(R.id.miniaturka_marker);
+        markerImageView.setImageResource(resId);
+        view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
+        view.buildDrawingCache();
+        Bitmap returnedBitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(),
+                Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(returnedBitmap);
+        canvas.drawColor(Color.WHITE, PorterDuff.Mode.SRC_IN);
+        Drawable drawable = view.getBackground();
+        if (drawable != null)
+            drawable.draw(canvas);
+        view.draw(canvas);
+        return returnedBitmap;
     }
 
 
@@ -512,6 +567,8 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
         komentarz.setEnabled(enableMenu);
         return true;
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

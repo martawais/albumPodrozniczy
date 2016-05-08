@@ -26,7 +26,16 @@
         android:layout_marginTop="40dp"
         android:id="@+id/raportSwitch" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text=""
+        android:id="@+id/informacjaMarker"
+        android:layout_above="@+id/editComment"
+        android:layout_marginLeft="20dp"
 
+        />
 
 
 </RelativeLayout>
