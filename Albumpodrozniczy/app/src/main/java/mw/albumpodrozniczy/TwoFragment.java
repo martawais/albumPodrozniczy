@@ -12,6 +12,8 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.util.regex.Pattern;
 
 /**
  * Created by mstowska on 3/6/2016.
@@ -31,6 +33,8 @@ public class TwoFragment extends Fragment {
     private String[] FileNameStrings;
     private File[] listFile;
     private File file;
+
+    public static String aktualnyAlbum = "";
 
 
     public TwoFragment() {
@@ -52,7 +56,17 @@ public class TwoFragment extends Fragment {
         context = container.getContext();
         pozycja = getArguments().getInt(BuildExistMap.POZYCJA_PODROZY);
 
+
         return view;
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+
+        if (isVisibleToUser == true) {
+            onResume();
+        }
     }
     @Override
     public void onResume() {
@@ -81,23 +95,46 @@ public class TwoFragment extends Fragment {
 
 
         if (file.isDirectory()) {
-            listFile = file.listFiles();
+           // listFile = file.listFiles();
+
+            final Pattern regex = Pattern.compile(aktualnyAlbum+".*");
+            File[] flists = file.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    return regex.matcher(file.getName()).matches();
+                }
+            });
+
+            FilePathStrings = new String[flists.length];
+            // Create a String array for FileNameStrings
+            FileNameStrings = new String[flists.length];
+            for (int i = 0; i < flists.length; i++) {
+                // Get the path of the image file
+                FilePathStrings[i] = flists[i].getAbsolutePath();
+                // Get the name image file
+                FileNameStrings[i] = flists[i].getName();
+            }
+
+            grid = (GridView) view.findViewById(R.id.gridView);
+            if(FilePathStrings != null) {
+                adapter = new GridViewAdapter(context, FilePathStrings, FileNameStrings);
+                grid.setAdapter(adapter);
+                databaseAdapter.close();
+
+/*
             // Create a String array for FilePathStrings
             FilePathStrings = new String[listFile.length];
             // Create a String array for FileNameStrings
             FileNameStrings = new String[listFile.length];
-
             for (int i = 0; i < listFile.length; i++) {
                 // Get the path of the image file
                 FilePathStrings[i] = listFile[i].getAbsolutePath();
                 // Get the name image file
                 FileNameStrings[i] = listFile[i].getName();
-            }
+            }*/
         }
-        grid = (GridView) view.findViewById(R.id.gridView);
-        adapter = new GridViewAdapter(context, FilePathStrings, FileNameStrings);
-        grid.setAdapter(adapter);
-        databaseAdapter.close();
+
+        }
 
 
         grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -113,6 +150,12 @@ public class TwoFragment extends Fragment {
             }
         });
     }
+
+
+    public static void setAktualnyAlbum(final String string) {
+        aktualnyAlbum = string;
+    }
+
 
 
 

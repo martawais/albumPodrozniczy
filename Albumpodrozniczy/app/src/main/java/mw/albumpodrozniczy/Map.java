@@ -127,6 +127,8 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
     private View mCustomMarkerView;
     private ImageView mMarkerImageView;
 
+    private String aktualnyFolder = "";
+
 
 
     @Override
@@ -159,6 +161,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
             invalidateOptionsMenu();
             buttonStart.setVisibility(View.INVISIBLE);
             buttonCamera.setEnabled(true);
+            buttonCamera.setVisibility(View.VISIBLE);
             raportSwitch.setEnabled(true);
             numerObecnejPodrozy = (long) intent.getIntExtra(BuildExistMap.POZYCJA_PODROZY, -999999);
 
@@ -168,8 +171,8 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
 
             latLng = null;
             for(int i=0; i<tablicaWszystkichTras.length;i++) {
-                double[] szerokosc = databaseAdapter.pobranieTablicyWszystkichWspolrzedne(tablicaWszystkichTras[i]-1, "szerokosc");
-                double[] dlugosc = databaseAdapter.pobranieTablicyWszystkichWspolrzedne(tablicaWszystkichTras[i]-1, "dlugosc");
+                double[] szerokosc = databaseAdapter.pobranieTablicyWszystkichWspolrzedne(tablicaWszystkichTras[i], "szerokosc");
+                double[] dlugosc = databaseAdapter.pobranieTablicyWszystkichWspolrzedne(tablicaWszystkichTras[i], "dlugosc");
                 Polyline line;
                 if(szerokosc.length!=0) {
                     double latitude = szerokosc[0];
@@ -184,6 +187,22 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
                         map.addCircle(new CircleOptions().center(new LatLng(szerokosc[0], dlugosc[0])).radius(0.3).strokeColor(Color.parseColor("#FF4081")).fillColor(Color.parseColor("#FF4081")));
                     }
                 }
+            }
+
+            String[] tablicaNazwAlbumow = databaseAdapter.pobranieTablicyWszystkichNazwAlbumu((int)numerObecnejPodrozy);
+            double[] tablicaSzerokosciAlbumow = databaseAdapter.pobranieTablicyWszystkichWspolrzedneAlbumu((int) numerObecnejPodrozy, "szerokosc");
+            double[] tablicaDlugosciAlbumow = databaseAdapter.pobranieTablicyWszystkichWspolrzedneAlbumu((int) numerObecnejPodrozy, "dlugosc");
+            if(tablicaNazwAlbumow.length!=0) {
+
+                mCustomMarkerView = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.element_marker, null);
+                mMarkerImageView = (ImageView) mCustomMarkerView.findViewById(R.id.miniaturka_marker);
+
+                for (int i = 0; i < tablicaNazwAlbumow.length; i++) {
+                    LatLng wspolrzedne = new LatLng(tablicaSzerokosciAlbumow[i], tablicaDlugosciAlbumow[i]);
+                    MarkerOptions markerOptionsFolder = new MarkerOptions().alpha(70).position(wspolrzedne).icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmapFromView(mCustomMarkerView, R.drawable.pionowe))).title("Tutaj trafią zdjęcia");
+                    map.addMarker(markerOptionsFolder);
+                }
+
             }
             if(latLng==null) {
                 latLng = new LatLng(51, 16);
@@ -222,6 +241,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
             @Override
             public void onClick(View view) {
                 buttonStart.setVisibility(View.INVISIBLE);
+                buttonCamera.setVisibility(View.VISIBLE);
                 buttonCamera.setEnabled(true);
                 raportSwitch.setChecked(true);
                 tytul.setEnabled(true);
@@ -246,10 +266,10 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
                     timeStamp = null;
                     if (trybEdycja == true) {
                         nazwa_folderu = "Album podróżniczy/" + databaseAdapter.pobranieWartosciZTabeli(databaseAdapter.DB_TABLE_MAIN, DatabaseAdapter.KEY_TITLE, (int) numerObecnejPodrozy);
-                        timeStamp = new SimpleDateFormat(tablicaWszystkichTras[tablicaWszystkichTras.length - 1] + "_yyyyMMdd_HHmmss").format(new Date());
-                        databaseAdapter.wstawKrotkeDoTabeliZdjecia(timeStamp, tablicaWszystkichTras[tablicaWszystkichTras.length - 1], null);
+                        timeStamp = new SimpleDateFormat(tablicaWszystkichTras[tablicaWszystkichTras.length-1] + "_yyyyMMdd_HHmmss").format(new Date());
+                        databaseAdapter.wstawKrotkeDoTabeliZdjecia(timeStamp, tablicaWszystkichTras[tablicaWszystkichTras.length-1], null);
                     } else {
-                        nazwa_folderu = "Album podróżniczy/" + databaseAdapter.pobranieWartosciZTabeli(databaseAdapter.DB_TABLE_MAIN, DatabaseAdapter.KEY_TITLE, (int) numerObecnejPodrozy - 1);
+                        nazwa_folderu = "Album podróżniczy/" + databaseAdapter.pobranieWartosciZTabeli(databaseAdapter.DB_TABLE_MAIN, DatabaseAdapter.KEY_TITLE, (int) numerObecnejPodrozy);
                         timeStamp = new SimpleDateFormat(numerObecnejTrasy + "_yyyyMMdd_HHmmss").format(new Date());
                         databaseAdapter.wstawKrotkeDoTabeliZdjecia(timeStamp, (int) numerObecnejTrasy, null);
                     }
@@ -259,7 +279,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
                     File imagesFolder = new File(Environment.getExternalStorageDirectory(), nazwa_folderu);
                     imagesFolder.mkdirs();
 
-                    File image = new File(imagesFolder, timeStamp + ".jpg");
+                    File image = new File(imagesFolder, aktualnyFolder + timeStamp + ".jpg");
                     Uri uriSavedImage = Uri.fromFile(image);
 
                     intentZdjecie.putExtra(MediaStore.EXTRA_OUTPUT, uriSavedImage);
@@ -279,6 +299,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
             public boolean onMarkerClick(Marker arg0) {
                 markeryZeZdjeciami.setText("Raportowanie zdjęć do folderu " + arg0.getId());
                 arg0.showInfoWindow();
+                aktualnyFolder = arg0.getId()+"_";
                 //Toast.makeText(context, "nacisnieto marker: " + arg0.getId(), Toast.LENGTH_SHORT).show();
                 return true;
             }
@@ -290,8 +311,34 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
             @Override
             public void onMapClick(LatLng arg0) {
                 markeryZeZdjeciami.setText("");
+                aktualnyFolder = "";
             }
         });
+
+
+        map.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker arg0) {
+                // TODO Auto-generated method stub
+               // Log.d("System out", "onMarkerDragStart..." + arg0.getPosition().latitude + "..." + arg0.getPosition().longitude);
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public void onMarkerDragEnd(Marker arg0) {
+                // TODO Auto-generated method stub
+              //  Log.d("System out", "onMarkerDragEnd..." + arg0.getPosition().latitude + "..." + arg0.getPosition().longitude);
+                databaseAdapter.aktualizacjaKrotkiTabeliAlbum(arg0.getId(), (int) numerObecnejPodrozy, Double.toString(arg0.getPosition().latitude), Double.toString(arg0.getPosition().longitude));
+                //map.animateCamera(CameraUpdateFactory.newLatLng(arg0.getPosition()));
+            }
+
+            @Override
+            public void onMarkerDrag(Marker arg0) {
+                // TODO Auto-generated method stub
+              //  Log.i("System out", "onMarkerDrag...");
+            }
+        });
+
 
 
         //nasłuchuje
@@ -319,7 +366,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
                         /*    File file = new File(databaseAdapter.pobranieWartosciZTabeli(databaseAdapter.DB_TABLE_MAIN, DatabaseAdapter.KEY_TITLE, (int) numerObecnejPodrozy));
                         File file2 = new File(editComment.getText().toString());
                         file.renameTo(file2);*/
-                        databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy + 1, DatabaseAdapter.KEY_TITLE, editComment.getText().toString());
+                        databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy, DatabaseAdapter.KEY_TITLE, editComment.getText().toString());
 
 
 
@@ -331,7 +378,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
                     editComment.setVisibility(View.INVISIBLE);
                 } else if (komentarz_tytul == 0) {
                     if (trybEdycja == true) {
-                        databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy + 1, DatabaseAdapter.KEY_COMMENT, editComment.getText().toString());
+                        databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy, DatabaseAdapter.KEY_COMMENT, editComment.getText().toString());
                     } else {
                         databaseAdapter.aktualizacjaKrotkiTabeliPodroze(numerObecnejPodrozy, DatabaseAdapter.KEY_COMMENT, editComment.getText().toString());
                     }
@@ -469,7 +516,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
                 currentZoom = map.getCameraPosition().zoom;
                 //marker.setPosition(latLng);
                 previousLatLng = latLng;
-                numerObecnejTrasy = databaseAdapter.wstawKrotkeDoTabeliTrasa((int) numerObecnejPodrozy-1);
+                numerObecnejTrasy = databaseAdapter.wstawKrotkeDoTabeliTrasa((int) numerObecnejPodrozy);
                 databaseAdapter.wstawKrotkeDoTabeliWspolrzedne(Double.toString(latLng.latitude), Double.toString(latLng.longitude), (int) numerObecnejTrasy);
                 quantityRoute = 2;
             }
@@ -490,7 +537,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
 
             Address address = listAddress.get(0);
 
-            numerObecnejPodrozy = (long) intent.getIntExtra(BuildExistMap.POZYCJA_PODROZY, -99999) + 1;
+            numerObecnejPodrozy = (long) intent.getIntExtra(BuildExistMap.POZYCJA_PODROZY, -99999);
 
             if(trybEdycja==false) {
                 numerObecnejPodrozy = databaseAdapter.wstawKrotkeDoTabeliPodroze(DatabaseAdapter.KEY_COUNTRY, address.getCountryName());
@@ -508,8 +555,10 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
         mMarkerImageView = (ImageView) mCustomMarkerView.findViewById(R.id.miniaturka_marker);
 
         markerOptionsFolder = new MarkerOptions().alpha(70).draggable(true).position(latLng).icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmapFromView(mCustomMarkerView, R.drawable.pionowe))).title("Tutaj trafią zdjęcia");
-        map.addMarker(markerOptionsFolder);
+        String idMarker = map.addMarker(markerOptionsFolder).getId();
 
+        databaseAdapter.wstawKrotkeDoTabeliAlbum(idMarker,(int) numerObecnejPodrozy, Double.toString(latLng.latitude), Double.toString(latLng.longitude));
+        databaseAdapter.wypiszTabele();
     }
 
 
@@ -519,11 +568,13 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
         buttonStart = (FloatingActionButton) findViewById(R.id.buttonStart);
         buttonCamera = (FloatingActionButton) findViewById(R.id.camera);
+
         geocoder= new Geocoder(getApplicationContext(), Locale.getDefault());
         raportSwitch = (Switch) findViewById(R.id.raportSwitch);
         editComment = (EditText) findViewById(R.id.editComment);
         layoutBelowMap = (RelativeLayout) findViewById(R.id.layoutBelowMap);
         raportSwitch.setEnabled(false);
+        buttonCamera.setVisibility(View.INVISIBLE);
         buttonCamera.setEnabled(false);
         //iconFolder = BitmapDescriptorFactory.fromResource(R.drawable.pionowe);
 

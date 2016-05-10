@@ -107,9 +107,13 @@ public class DatabaseAdapter {
     public static final String ALBUM_ID_PODROZE_OPTIONS = "INTEGER NULL";
     public static final int ALBUM_ID_PODROZE_COLUMN = 2;
 
-    public static final String KEY_ALBUM_ID_WSPOLRZEDNE = "idwspolrzedne";
-    public static final String ALBUM_ID_WSPOLRZEDNE_OPTIONS = "INTEGER NULL";
-    public static final int ALBUM_ID_WSPOLRZEDNE_COLUMN = 3;
+    public static final String KEY_ALBUM_SZEROKOSC = "szerokosc";
+    public static final String ALBUM_SZEROKOSC_OPTIONS = "INTEGER NULL";
+    public static final int ALBUM_SZEROKOSC_COLUMN = 3;
+
+    public static final String KEY_ALBUM_DLUGOSC = "dlugosc";
+    public static final String ALBUM_DLUGOSC_OPTIONS = "INTEGER NULL";
+    public static final int ALBUM_DLUGOSC_COLUMN = 4;
 
 
     //dane do trzeciej tabeli ZDJECIA:
@@ -193,7 +197,8 @@ public class DatabaseAdapter {
                     KEY_ALBUM_ID + " " + ALBUM_ID_OPTIONS + ", " +
                     KEY_ALBUM_NAZWA + " " + ALBUM_NAZWA_OPTIONS + ", " +
                     KEY_ALBUM_ID_PODROZE + " " + ALBUM_ID_PODROZE_OPTIONS + ", " +
-                    KEY_ALBUM_ID_WSPOLRZEDNE + " " + ALBUM_ID_WSPOLRZEDNE_OPTIONS +
+                    KEY_ALBUM_SZEROKOSC + " " + ALBUM_SZEROKOSC_OPTIONS + ", "+
+                    KEY_ALBUM_DLUGOSC + " " + ALBUM_DLUGOSC_OPTIONS +
                     ");";
 
     //stało do usuwania czwartej tabeli
@@ -280,6 +285,16 @@ public class DatabaseAdapter {
         return database.insert(DB_TABLE_WSPOLRZEDNE, null, nowaKrotka);
     }
 
+    //dodanie nowej krotki do tabeli album
+    public long wstawKrotkeDoTabeliAlbum(String nazwa, Integer IDpodrozy, String szerokosc, String dlugosc) {
+        ContentValues nowaKrotka = new ContentValues();    //stworzenie obiektu do przekazania danych do zapytania
+        nowaKrotka.put(KEY_ALBUM_NAZWA, nazwa);
+        nowaKrotka.put(KEY_ALBUM_ID_PODROZE, IDpodrozy);
+        nowaKrotka.put(KEY_ALBUM_SZEROKOSC, szerokosc);
+        nowaKrotka.put(KEY_ALBUM_DLUGOSC, dlugosc);
+        return database.insert(DB_TABLE_ALBUM, null, nowaKrotka);
+    }
+
     //dodanie nowej krotki do tabeli wspolrzedne
     public long wstawKrotkeDoTabeliZdjecia(String nazwa, Integer IDtrasa, Integer IDalbum) {
         ContentValues nowaKrotka = new ContentValues();    //stworzenie obiektu do przekazania danych do zapytania
@@ -315,7 +330,7 @@ public class DatabaseAdapter {
 
     public String[] pobranieTablicyWszystkichZdjecDoTrasy(Integer trasa) {
         String[] zdjecia;
-        zdjecia = dbHelper.findAllPhotos(database,trasa);
+        zdjecia = dbHelper.findAllPhotos(database, trasa);
         return zdjecia;
     }
 
@@ -326,12 +341,35 @@ public class DatabaseAdapter {
         return tablica;
     }
 
+    public double[] pobranieTablicyWszystkichWspolrzedneAlbumu(Integer idPodrozy, String geo) {
+        double[] tablica;
+        tablica = dbHelper.findAllCoordinatesAlbum(database, idPodrozy, geo);
+
+        return tablica;
+    }
+
+    public String[] pobranieTablicyWszystkichNazwAlbumu(Integer idPodroz) {
+        String[] tablica;
+        tablica = dbHelper.findAllNameAlbums(database, idPodroz);
+
+        return tablica;
+    }
+
 
     public boolean aktualizacjaKrotkiTabeliPodroze(long id, String klucz, String opis) {
         String where = KEY_ID + "=" + id;
         ContentValues nowaWartosc = new ContentValues();
         nowaWartosc.put(klucz, opis);
         return database.update(DB_TABLE_MAIN, nowaWartosc, where, null) > 0;
+    }
+
+
+    public boolean aktualizacjaKrotkiTabeliAlbum(String nazwa, int IDpodroz, String szerokosc, String dlugosc) {
+        String where = KEY_ALBUM_ID_PODROZE +"='"+IDpodroz+"' AND "+ KEY_ALBUM_NAZWA + "='" + nazwa+"'";
+        ContentValues nowaWartosc = new ContentValues();
+        nowaWartosc.put(KEY_ALBUM_SZEROKOSC, szerokosc);
+        nowaWartosc.put(KEY_ALBUM_DLUGOSC, dlugosc);
+        return database.update(DB_TABLE_ALBUM, nowaWartosc, where, null) > 0;
     }
 
     public void wypiszTabele() {

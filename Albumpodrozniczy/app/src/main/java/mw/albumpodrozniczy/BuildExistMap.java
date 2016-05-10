@@ -62,6 +62,7 @@ public class BuildExistMap extends AppCompatActivity {
 
         Intent intent = getIntent();
         pozycja = intent.getIntExtra(MainActivity.POZYCJA, 0);
+        pozycja++;
 
         databaseAdapter = new DatabaseAdapter(getApplicationContext());
         databaseAdapter.open();

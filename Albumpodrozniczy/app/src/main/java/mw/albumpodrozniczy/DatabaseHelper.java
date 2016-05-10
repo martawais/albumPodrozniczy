@@ -86,6 +86,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 cursor.moveToNext();
             }
         }
+
+        cursor = db.rawQuery(DatabaseAdapter.SELECT_TABLE_ALBUM, null);
+        if (cursor.moveToFirst()) {
+            while (cursor.isAfterLast() == false) {
+                String string1 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ALBUM_ID));
+                String string2 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ALBUM_NAZWA));
+                String string3 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ALBUM_ID_PODROZE));
+                String string4 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ALBUM_SZEROKOSC));
+                String string5 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ALBUM_DLUGOSC));
+                Log.d(DatabaseAdapter.DEBUG_TAG_DB, string1 + "," + string2 + "," + string3 + "," + string4 + "," + string5); // Only assign string value if we moved to first record
+                cursor.moveToNext();
+            }
+        }
+
+
         cursor = db.rawQuery(DatabaseAdapter.SELECT_TABLE_WSPOLRZEDNE, null);
         if (cursor.moveToFirst()) {
             while (cursor.isAfterLast() == false) {
@@ -153,7 +168,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public String dostanieWartosciZTabeli(SQLiteDatabase db, String nazwa_tabeli, String nazwa_kolumny, Integer pozycja) {
         String wartosc = null;
         String[] columns = {nazwa_kolumny};
-        pozycja++;
         String where = DatabaseAdapter.KEY_ID + "=" + pozycja;
         cursor = db.query(nazwa_tabeli, columns, where, null, null, null, null, null);
         if (cursor.moveToFirst()) {
@@ -182,7 +196,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public int[] findAllRoutes(SQLiteDatabase db, Integer pozycjaPodrozy) {
 
         String[] columns = {DatabaseAdapter.KEY_TRASA_ID};
-        pozycjaPodrozy++;
         String where = DatabaseAdapter.KEY_TRASA_ID_PODROZE + "=" + pozycjaPodrozy;
         cursor=db.query("trasy",columns,where,null,null,null,null,null);
         int i = 0;
@@ -226,7 +239,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             KOLUMNA = "wysokosc";
         }
         String[] columns = {KOLUMNA};
-        numerTrasy++;
         String where = DatabaseAdapter.KEY_WSPOLRZEDNE_ID_TRASA + "=" + numerTrasy;
         cursor=db.query("wspolrzedne",columns,where,null,null,null,null,null);
         int i = 0;
@@ -241,6 +253,55 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         return tablicaRoutes;
+    }
+
+
+    public double[] findAllCoordinatesAlbum(SQLiteDatabase db, Integer idPodoz, String geograficzna) {
+
+        String KOLUMNA = null;
+        if(geograficzna=="szerokosc") {
+            KOLUMNA = "szerokosc";
+        }
+        else if(geograficzna=="dlugosc"){
+            KOLUMNA = "dlugosc";
+        }
+        String[] columns = {KOLUMNA};
+        String where = DatabaseAdapter.KEY_ALBUM_ID_PODROZE + "=" + idPodoz;
+        cursor=db.query("albumy",columns,where,null,null,null,null,null);
+        int i = 0;
+        double[] tablicaCoordinates = new double[cursor.getCount()];
+        Log.d(DatabaseAdapter.DEBUG_TAG_DB, "liczba rzedow" + cursor.getCount());
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            tablicaCoordinates[i] = cursor.getDouble(cursor.getColumnIndex(KOLUMNA));
+            Log.d(DatabaseAdapter.DEBUG_TAG_DB, "" + tablicaCoordinates[i]);
+            i++;
+            cursor.moveToNext();
+        }
+
+        return tablicaCoordinates;
+    }
+
+
+
+    public String[] findAllNameAlbums(SQLiteDatabase db, Integer idPodoz) {
+
+        String KOLUMNA = "title";
+        String[] columns = {KOLUMNA};
+        String where = DatabaseAdapter.KEY_ALBUM_ID_PODROZE + "=" + idPodoz;
+        cursor=db.query("albumy",columns,where,null,null,null,null,null);
+        int i = 0;
+        String[] tablicaNames = new String[cursor.getCount()];
+        Log.d(DatabaseAdapter.DEBUG_TAG_DB, "liczba rzedow" + cursor.getCount());
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            tablicaNames[i] = cursor.getString(cursor.getColumnIndex(KOLUMNA));
+            Log.d(DatabaseAdapter.DEBUG_TAG_DB, "" + tablicaNames[i]);
+            i++;
+            cursor.moveToNext();
+        }
+
+        return tablicaNames;
     }
 }
 
