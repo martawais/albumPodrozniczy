@@ -41,15 +41,22 @@ public class GridViewAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         View view = convertView;
+        ImageView picture;
+
 
         if (convertView == null) {
-            view = inflater.inflate(R.layout.element_gridview, null);
+            view = inflater.inflate(R.layout.element_gridview, parent, false);
+            view.setTag(R.id.imageGridView, view.findViewById(R.id.imageGridView));
         }
 
-        ImageView imageView = (ImageView) view.findViewById(R.id.imageGridView);
+        picture = (ImageView) view.findViewById(R.id.imageGridView);
+        //ImageView imageView = (ImageView) view.findViewById(R.id.imageGridView);
+        //imageView.setLayoutParams(new GridView.LayoutParams(504, 504));
+       // imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+       // imageView.setPadding(8, 8, 8, 8);
 
-        imageView.setTag(position);
-        LadowanieZdjecGridView ladowanieZdjec = new LadowanieZdjecGridView(position, imageView);
+        picture.setTag(position);
+        LadowanieZdjecGridView ladowanieZdjec = new LadowanieZdjecGridView(position, picture);
         ladowanieZdjec.execute(sciezka[position]);
 
         return view;

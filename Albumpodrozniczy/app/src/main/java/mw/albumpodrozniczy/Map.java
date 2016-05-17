@@ -1,6 +1,7 @@
 package mw.albumpodrozniczy;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -20,7 +21,9 @@ import android.provider.MediaStore;
 import android.support.annotation.DrawableRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -128,7 +131,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
     private ImageView mMarkerImageView;
 
     private String aktualnyFolder = "";
-
+    private String komentarzDoAktualnegoZdjecia;
 
 
     @Override
@@ -180,16 +183,28 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
                     latLng = new LatLng(latitude, longitude);
                     if(szerokosc.length != 1) {
                         for (int j = 1; j < szerokosc.length; j++) {
-                            line = map.addPolyline(new PolylineOptions().add(new LatLng(szerokosc[j - 1], dlugosc[j - 1]), new LatLng(szerokosc[j], dlugosc[j])).width(15).color(Color.parseColor("#FF4081")));
+                            line = map.addPolyline(new PolylineOptions().add(new LatLng(szerokosc[j - 1], dlugosc[j - 1]), new LatLng(szerokosc[j], dlugosc[j])).width(15).color(R.color.colorPath));
                         }
                     }
                     else {
-                        map.addCircle(new CircleOptions().center(new LatLng(szerokosc[0], dlugosc[0])).radius(0.3).strokeColor(Color.parseColor("#FF4081")).fillColor(Color.parseColor("#FF4081")));
+                        map.addCircle(new CircleOptions().center(new LatLng(szerokosc[0], dlugosc[0])).radius(0.3).strokeColor(R.color.colorPath).fillColor(R.color.colorPath));
                     }
                 }
             }
 
+
+
             String[] tablicaNazwAlbumow = databaseAdapter.pobranieTablicyWszystkichNazwAlbumu((int)numerObecnejPodrozy);
+            if(tablicaNazwAlbumow.length!=0) {
+
+                mCustomMarkerView = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.element_marker, null);
+                mMarkerImageView = (ImageView) mCustomMarkerView.findViewById(R.id.miniaturka_marker);
+                LadowanieZdjecDoMarkera ladowanieZdjec = new LadowanieZdjecDoMarkera(context, (int)numerObecnejPodrozy, mCustomMarkerView,mMarkerImageView, map, trybEdycja);
+                ladowanieZdjec.execute(tablicaNazwAlbumow);
+            }
+
+
+            /*String[] tablicaNazwAlbumow = databaseAdapter.pobranieTablicyWszystkichNazwAlbumu((int)numerObecnejPodrozy);
             double[] tablicaSzerokosciAlbumow = databaseAdapter.pobranieTablicyWszystkichWspolrzedneAlbumu((int) numerObecnejPodrozy, "szerokosc");
             double[] tablicaDlugosciAlbumow = databaseAdapter.pobranieTablicyWszystkichWspolrzedneAlbumu((int) numerObecnejPodrozy, "dlugosc");
             if(tablicaNazwAlbumow.length!=0) {
@@ -199,11 +214,11 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
 
                 for (int i = 0; i < tablicaNazwAlbumow.length; i++) {
                     LatLng wspolrzedne = new LatLng(tablicaSzerokosciAlbumow[i], tablicaDlugosciAlbumow[i]);
-                    MarkerOptions markerOptionsFolder = new MarkerOptions().alpha(70).position(wspolrzedne).icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmapFromView(mCustomMarkerView, R.drawable.pionowe))).title("Tutaj trafią zdjęcia");
+                    MarkerOptions markerOptionsFolder = new MarkerOptions().draggable(true).alpha(70).position(wspolrzedne).icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmapFromView(mCustomMarkerView, R.drawable.folder_multiple_image))).title("Tutaj trafią zdjęcia");
                     map.addMarker(markerOptionsFolder);
                 }
 
-            }
+            }*/
             if(latLng==null) {
                 latLng = new LatLng(51, 16);
 
@@ -267,11 +282,11 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
                     if (trybEdycja == true) {
                         nazwa_folderu = "Album podróżniczy/" + databaseAdapter.pobranieWartosciZTabeli(databaseAdapter.DB_TABLE_MAIN, DatabaseAdapter.KEY_TITLE, (int) numerObecnejPodrozy);
                         timeStamp = new SimpleDateFormat(tablicaWszystkichTras[tablicaWszystkichTras.length-1] + "_yyyyMMdd_HHmmss").format(new Date());
-                        databaseAdapter.wstawKrotkeDoTabeliZdjecia(timeStamp, tablicaWszystkichTras[tablicaWszystkichTras.length-1], null);
+                        databaseAdapter.wstawKrotkeDoTabeliZdjecia(timeStamp, tablicaWszystkichTras[tablicaWszystkichTras.length-1], null, null);
                     } else {
                         nazwa_folderu = "Album podróżniczy/" + databaseAdapter.pobranieWartosciZTabeli(databaseAdapter.DB_TABLE_MAIN, DatabaseAdapter.KEY_TITLE, (int) numerObecnejPodrozy);
                         timeStamp = new SimpleDateFormat(numerObecnejTrasy + "_yyyyMMdd_HHmmss").format(new Date());
-                        databaseAdapter.wstawKrotkeDoTabeliZdjecia(timeStamp, (int) numerObecnejTrasy, null);
+                        databaseAdapter.wstawKrotkeDoTabeliZdjecia(timeStamp, (int) numerObecnejTrasy, null, null);
                     }
                     Intent intentZdjecie = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
 
@@ -286,6 +301,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
 
                     if (intentZdjecie.resolveActivity(getPackageManager()) != null) {
                         startActivityForResult(intentZdjecie, REQUEST_IMAGE_CAPTURE);
+
                     }
                 }
 
@@ -297,7 +313,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
 
             @Override
             public boolean onMarkerClick(Marker arg0) {
-                markeryZeZdjeciami.setText("Raportowanie zdjęć do folderu " + arg0.getId());
+                //markeryZeZdjeciami.setText("Raportowanie zdjęć do folderu " + arg0.getId());
                 arg0.showInfoWindow();
                 aktualnyFolder = arg0.getId()+"_";
                 //Toast.makeText(context, "nacisnieto marker: " + arg0.getId(), Toast.LENGTH_SHORT).show();
@@ -310,7 +326,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
 
             @Override
             public void onMapClick(LatLng arg0) {
-                markeryZeZdjeciami.setText("");
+                //markeryZeZdjeciami.setText("");
                 aktualnyFolder = "";
             }
         });
@@ -470,8 +486,39 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
 
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
 
-            //Intent intentPhoto = new Intent(Map.this, CameraModule.class);
-           // startActivity(intentPhoto);
+            ContextThemeWrapper ctx = new ContextThemeWrapper(this, R.style.AppTheme_NoActionBar);
+            AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
+            builder.setTitle("Dodaj komentarz do zdjęcia");
+
+            // I'm using fragment here so I'm using getView() to provide ViewGroup
+            // but you can provide here any other instance of ViewGroup from your Fragment / Activity
+            View viewInflated = LayoutInflater.from(ctx).inflate(R.layout.frame_dialog, null);
+            // Set up the input
+            final EditText input = (EditText) viewInflated.findViewById(R.id.input);
+            // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+            builder.setView(viewInflated);
+
+            // Set up the buttons
+            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    komentarzDoAktualnegoZdjecia = input.getText().toString();
+                    databaseAdapter.wypiszTabele();
+                    databaseAdapter.aktualizacjaKrotkiTabeliZdjecie(timeStamp, "komentarz", komentarzDoAktualnegoZdjecia);
+                    //markeryZeZdjeciami.setText(komentarzDoAktualnegoZdjecia);
+                }
+            });
+            builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            builder.show();
+
+
         }
         else {
             File imagesFolder = new File(Environment.getExternalStorageDirectory(), nazwa_folderu+"/"+timeStamp);
@@ -505,7 +552,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
             else if (quantityRoute == 2) {
                 currentZoom = map.getCameraPosition().zoom;
                 //marker.setPosition(latLng);
-                line = map.addPolyline(new PolylineOptions().add(previousLatLng, latLng).width(15).color(Color.parseColor("#FF4081")));
+                line = map.addPolyline(new PolylineOptions().add(previousLatLng, latLng).width(15).color(R.color.colorPath));
                 previousLatLng = latLng;
                 databaseAdapter.wstawKrotkeDoTabeliWspolrzedne(Double.toString(latLng.latitude), Double.toString(latLng.longitude), (int) numerObecnejTrasy);
             }
@@ -554,7 +601,7 @@ public class Map extends AppCompatActivity implements GoogleApiClient.Connection
         mCustomMarkerView = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.element_marker, null);
         mMarkerImageView = (ImageView) mCustomMarkerView.findViewById(R.id.miniaturka_marker);
 
-        markerOptionsFolder = new MarkerOptions().alpha(70).draggable(true).position(latLng).icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmapFromView(mCustomMarkerView, R.drawable.pionowe))).title("Tutaj trafią zdjęcia");
+        markerOptionsFolder = new MarkerOptions().alpha(70).draggable(true).position(latLng).icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmapFromView(mCustomMarkerView, R.drawable.folder_multiple_image))).title("Tutaj trafią zdjęcia");
         String idMarker = map.addMarker(markerOptionsFolder).getId();
 
         databaseAdapter.wstawKrotkeDoTabeliAlbum(idMarker,(int) numerObecnejPodrozy, Double.toString(latLng.latitude), Double.toString(latLng.longitude));

@@ -33,6 +33,7 @@ public class TwoFragment extends Fragment {
     private String[] FileNameStrings;
     private File[] listFile;
     private File file;
+    private int iloscZdjec;
 
     public static String aktualnyAlbum = "";
 
@@ -68,6 +69,8 @@ public class TwoFragment extends Fragment {
             onResume();
         }
     }
+
+
     @Override
     public void onResume() {
         super.onResume();
@@ -91,7 +94,7 @@ public class TwoFragment extends Fragment {
 
         nazwaPodrozy = databaseAdapter.pobranieWartosciZTabeli(databaseAdapter.DB_TABLE_MAIN, DatabaseAdapter.KEY_TITLE, (int) pozycja);
         file = new File(Environment.getExternalStorageDirectory()+ File.separator + "Album podróżniczy" + File.separator+ nazwaPodrozy);
-
+        databaseAdapter.close();
 
 
         if (file.isDirectory()) {
@@ -108,18 +111,39 @@ public class TwoFragment extends Fragment {
             FilePathStrings = new String[flists.length];
             // Create a String array for FileNameStrings
             FileNameStrings = new String[flists.length];
-            for (int i = 0; i < flists.length; i++) {
+            iloscZdjec = flists.length;
+            for (int i = 0; i < iloscZdjec; i++) {
                 // Get the path of the image file
                 FilePathStrings[i] = flists[i].getAbsolutePath();
                 // Get the name image file
                 FileNameStrings[i] = flists[i].getName();
             }
 
-            grid = (GridView) view.findViewById(R.id.gridView);
+            grid = (GridView) view.findViewById(R.id.gridview);
             if(FilePathStrings != null) {
                 adapter = new GridViewAdapter(context, FilePathStrings, FileNameStrings);
                 grid.setAdapter(adapter);
-                databaseAdapter.close();
+
+
+
+                grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                    @Override
+                    public void onItemClick(AdapterView<?> arg0, View v, int position, long arg3) {
+                        //Toast.makeText(context.getApplicationContext(), position + "", Toast.LENGTH_SHORT).show();
+                        //String komentarz = databaseAdapter.pobranieKomentarzaDoZdjecia(FileNameStrings[position].replaceFirst(".jpg", ""));
+
+                        Intent intentDisplayImage = new Intent(getActivity(), DisplayImage.class);
+                        intentDisplayImage.putExtra("sciezka", FilePathStrings);
+                        intentDisplayImage.putExtra("nazwyZdjec", FileNameStrings);
+                        intentDisplayImage.putExtra("obecneZdjecie", position);
+                        intentDisplayImage.putExtra("nazwaPodrozy", nazwaPodrozy);
+                        intentDisplayImage.putExtra("iloscZdjec", iloscZdjec);
+                        intentDisplayImage.putExtra("aktualnyAlbum",aktualnyAlbum);
+                        startActivity(intentDisplayImage);
+                       // Toast.makeText(context, "wys" + arg0.getY(), Toast.LENGTH_SHORT).show();
+                    }
+                });
 
 /*
             // Create a String array for FilePathStrings
@@ -137,18 +161,7 @@ public class TwoFragment extends Fragment {
         }
 
 
-        grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-            @Override
-            public void onItemClick(AdapterView<?> arg0, View v, int position, long arg3) {
-                //Toast.makeText(context.getApplicationContext(), position + "", Toast.LENGTH_SHORT).show();
-                Intent intentDisplayImage = new Intent(getActivity(), DisplayImage.class);
-                intentDisplayImage.putExtra("sciezka", FilePathStrings);
-                intentDisplayImage.putExtra("obecneZdjecie", position);
-                intentDisplayImage.putExtra("nazwaPodrozy", nazwaPodrozy);
-                startActivity(intentDisplayImage);
-            }
-        });
     }
 
 

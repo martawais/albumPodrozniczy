@@ -3,20 +3,38 @@
     android:id="@+id/marker_element"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:alpha="60"
-    android:background="@color/colorPrimary">
+
+    android:background="@color/common_plus_signin_btn_text_light_focused">
 
     <ImageView
-        android:id="@+id/miniaturka_marker"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:id="@+id/podkład"
+        android:layout_width="60dp"
+        android:layout_height="66dp"
         android:scaleType="centerCrop"
         android:layout_gravity="center_horizontal"
         android:contentDescription="@null"
-        android:layout_marginTop="15dip"
-        android:layout_marginLeft="15dip"
-        android:layout_marginRight="15dip"
-        android:layout_marginBottom="15dip"
-        android:alpha="60"
-        android:src="@drawable/folder_image_w" />
+        android:layout_marginTop="1dip"
+        android:layout_marginLeft="1dip"
+        android:layout_marginRight="1dip"
+        android:layout_marginBottom="1dip"
+        android:src="@drawable/white"
+
+        />
+
+    <ImageView
+        android:id="@+id/miniaturka_marker"
+        android:layout_width="54dp"
+        android:layout_height="52dp"
+        android:scaleType="centerCrop"
+
+        android:layout_gravity="center_horizontal"
+        android:contentDescription="@null"
+        android:layout_marginTop="4dip"
+        android:layout_marginLeft="4dip"
+        android:layout_marginRight="4dip"
+        android:layout_marginBottom="12dip"
+        android:src="@drawable/folder_multiple_image_black"
+
+        />
+
 </FrameLayout>

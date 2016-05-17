@@ -28,7 +28,7 @@ public class LadowanieZdjecGridView extends AsyncTask<String, Void, Bitmap> {
 
         String sciezkaDoZdjecia = zdjecie[0];
 
-        Bitmap bitmap = dekodowanieBitmapy(sciezkaDoZdjecia, 200, 200);
+        Bitmap bitmap = dekodowanieBitmapy(sciezkaDoZdjecia, 250, 200);
         try {
             ExifInterface exif = new ExifInterface(sciezkaDoZdjecia);
             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
@@ -41,7 +41,8 @@ public class LadowanieZdjecGridView extends AsyncTask<String, Void, Bitmap> {
                 matrix.postRotate(270);
             }
 
-            bitmap = Bitmap.createBitmap(bitmap, 0, 0,300,bitmap.getHeight(), matrix, true); // rotating bitmap
+            int wys = bitmap.getHeight();
+            bitmap = Bitmap.createBitmap(bitmap, 0, 0,wys,bitmap.getHeight(), matrix, true); // rotating bitmap
 
         } catch (Exception e) {
 

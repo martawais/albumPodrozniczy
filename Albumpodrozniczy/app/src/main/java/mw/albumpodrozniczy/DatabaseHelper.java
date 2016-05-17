@@ -119,7 +119,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String string2 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ZDJECIA_NAZWA));
                 String string3 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ZDJECIA_ID_TRASA));
                 String string4 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ZDJECIA_ID_ALBUM));
-                Log.d(DatabaseAdapter.DEBUG_TAG_DB, string1 + "," + string2 + "," + string3 + "," + string4); // Only assign string value if we moved to first record
+                String string5 = cursor.getString(cursor.getColumnIndex(DatabaseAdapter.KEY_ZDJECIA_KOMENTARZ));
+                Log.d(DatabaseAdapter.DEBUG_TAG_DB, string1 + "," + string2 + "," + string3 + "," + string4+ "," + string5); // Only assign string value if we moved to first record
                 cursor.moveToNext();
             }
         }
@@ -303,6 +304,40 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return tablicaNames;
     }
+
+    public String findCommentPhoto(SQLiteDatabase db, String nazwa) {
+
+        String komentarz;
+
+        String KOLUMNA = "komentarz";
+        String[] COLUMNS = {KOLUMNA};
+
+        Cursor cursor =
+                db.query("zdjecia", // a. table
+                        COLUMNS, // b. column names
+                        "title = ?", // c. selections
+                        new String[] { nazwa }, // d. selections args
+                        null, // e. group by
+                        null, // f. having
+                        null, // g. order by
+                        null); // h. limit
+
+        // 3. if we got results get the first one
+        if (cursor != null && cursor.moveToFirst()) {
+            komentarz = cursor.getString(0);
+            cursor.close();
+        }
+        else {
+            komentarz = null;
+        }
+
+        return komentarz;
+    }
+
+
+
+
+
 }
 
 

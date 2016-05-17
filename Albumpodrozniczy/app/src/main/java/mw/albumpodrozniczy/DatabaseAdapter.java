@@ -133,6 +133,10 @@ public class DatabaseAdapter {
     public static final String ZDJECIA_ID_ALBUM_OPTIONS = "INTEGER NULL";
     public static final int ZDJECIA_ID_ALBUM_COLUMN = 3;
 
+    public static final String KEY_ZDJECIA_KOMENTARZ = "komentarz";
+    public static final String ZDJECIA_KOMENTARZ_OPTIONS = "TEXT NULL";
+    public static final int ZDJECIA_KOMENTARZ_COLUMN = 4;
+
 
     //stała do tworzenia pierwszej tabeli
     public static final String DB_CREATE_TABLE_MAIN =
@@ -215,7 +219,8 @@ public class DatabaseAdapter {
                     KEY_ZDJECIA_ID + " " + ZDJECIA_ID_OPTIONS + ", " +
                     KEY_ZDJECIA_NAZWA + " " + ZDJECIA_NAZWA_OPTIONS + ", " +
                     KEY_ZDJECIA_ID_TRASA + " " + ZDJECIA_ID_TRASA_OPTIONS + ", " +
-                    KEY_ZDJECIA_ID_ALBUM + " " + ZDJECIA_ID_ALBUM_OPTIONS +
+                    KEY_ZDJECIA_ID_ALBUM + " " + ZDJECIA_ID_ALBUM_OPTIONS + ", " +
+                    KEY_ZDJECIA_KOMENTARZ + " " + ZDJECIA_KOMENTARZ_OPTIONS +
                     ");";
 
     //stało do usuwania piatej tabeli
@@ -295,12 +300,13 @@ public class DatabaseAdapter {
         return database.insert(DB_TABLE_ALBUM, null, nowaKrotka);
     }
 
-    //dodanie nowej krotki do tabeli wspolrzedne
-    public long wstawKrotkeDoTabeliZdjecia(String nazwa, Integer IDtrasa, Integer IDalbum) {
+    //dodanie nowej krotki do tabeli zdjecia
+    public long wstawKrotkeDoTabeliZdjecia(String nazwa, Integer IDtrasa, Integer IDalbum, String komentarz) {
         ContentValues nowaKrotka = new ContentValues();    //stworzenie obiektu do przekazania danych do zapytania
         nowaKrotka.put(KEY_ZDJECIA_NAZWA, nazwa);
         nowaKrotka.put(KEY_ZDJECIA_ID_TRASA, IDtrasa);
         nowaKrotka.put(KEY_ZDJECIA_ID_ALBUM, IDalbum);
+        nowaKrotka.put(KEY_ZDJECIA_KOMENTARZ, komentarz);
         return database.insert(DB_TABLE_ZDJECIA, null, nowaKrotka);
     }
 
@@ -355,12 +361,25 @@ public class DatabaseAdapter {
         return tablica;
     }
 
+    public String pobranieKomentarzaDoZdjecia(String nazwa) {
+        String komentarz;
+        komentarz = dbHelper.findCommentPhoto(database, nazwa);
+        return komentarz;
+    }
+
 
     public boolean aktualizacjaKrotkiTabeliPodroze(long id, String klucz, String opis) {
         String where = KEY_ID + "=" + id;
         ContentValues nowaWartosc = new ContentValues();
         nowaWartosc.put(klucz, opis);
         return database.update(DB_TABLE_MAIN, nowaWartosc, where, null) > 0;
+    }
+
+    public boolean aktualizacjaKrotkiTabeliZdjecie(String nazwa, String klucz, String opis) {
+        String where = KEY_ZDJECIA_NAZWA +"='"+nazwa+"'";
+        ContentValues nowaWartosc = new ContentValues();
+        nowaWartosc.put(klucz, opis);
+        return database.update(DB_TABLE_ZDJECIA, nowaWartosc, where, null) > 0;
     }
 
 
